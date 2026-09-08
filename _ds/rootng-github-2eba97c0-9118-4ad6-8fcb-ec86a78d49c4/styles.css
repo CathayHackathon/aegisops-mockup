@@ -1,0 +1,12 @@
+/* Cathay Merchant Portal Design System — single entry point.
+   Consumers can link just this one file; it pulls in the rest in the
+   correct order: icon font → tokens (colors / type / spacing) → components → utilities.
+
+   <link rel="stylesheet" href="styles.css">
+
+   (Each file is also linkable individually if you need finer control —
+   see SKILL.md. Order matters: cub-components.css consumes the tokens.) */
+@import url("./fonts/cub-iconfont.css");
+@import url("./colors_and_type.css");
+@import url("./cub-components.css");
+@import url("./cub-utilities.css");

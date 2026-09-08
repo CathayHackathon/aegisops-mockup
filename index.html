@@ -1,0 +1,1164 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/rootng-github-2eba97c0-9118-4ad6-8fcb-ec86a78d49c4/fonts/cub-iconfont.css">
+  <link rel="stylesheet" href="_ds/rootng-github-2eba97c0-9118-4ad6-8fcb-ec86a78d49c4/colors_and_type.css">
+  <link rel="stylesheet" href="_ds/rootng-github-2eba97c0-9118-4ad6-8fcb-ec86a78d49c4/cub-components.css">
+  <link rel="stylesheet" href="_ds/rootng-github-2eba97c0-9118-4ad6-8fcb-ec86a78d49c4/cub-utilities.css">
+  <link rel="stylesheet" href="_ds/rootng-github-2eba97c0-9118-4ad6-8fcb-ec86a78d49c4/styles.css">
+  <script src="_ds/rootng-github-2eba97c0-9118-4ad6-8fcb-ec86a78d49c4/_ds_bundle.js"></script>
+  <style>
+    html, body { margin: 0; height: 100%; background: var(--bg-neutral-light); font: var(--font-body-m); color: var(--text-neutral-primary); }
+    a { color: var(--text-brand-main); } a:hover { color: var(--text-brand-hover); }
+    @keyframes cs-spin { to { transform: rotate(360deg); } }
+    @keyframes cs-pulse { 0%,100% { opacity: 1; } 50% { opacity: .45; } }
+    .cs-spin { display: inline-block; animation: cs-spin 1.2s linear infinite; }
+    .cs-pulse { animation: cs-pulse 1.4s ease-in-out infinite; }
+    /* layout skeleton only: keep the DS side panel inline instead of overlay */
+    .cs-sidebar.cub-layout-panel { position: relative; transform: none; flex: none; width: 240px; transition: width .3s; }
+    .cs-sidebar.cub-layout-panel.cs-collapsed { width: 56px; }
+    .cs-overlay { position: fixed; inset: 0; z-index: 2300; background: var(--backdrop-dark); display: flex; justify-content: flex-end; }
+    .cs-overlay-center { align-items: center; justify-content: center; }
+    .cs-overlay .cub-drawer { height: 100%; }
+    .cs-table { width: 100%; border-collapse: separate; border-spacing: 0; background: var(--bg-neutral-base); border: 1px solid var(--border-neutral-lighter); border-radius: var(--radius-m); overflow: hidden; }
+    .cs-table thead th, .cs-table tbody td { border-bottom: 1px solid var(--border-neutral-lighter); }
+    .cs-table tbody tr:last-child td { border-bottom: 0; }
+    .cs-row-link { cursor: pointer; }
+    .cs-mono { font-family: ui-monospace, Menlo, Consolas, monospace; }
+    .cub-step-header.cs-clickable { cursor: pointer; }
+  </style>
+</helmet>
+<div class="cub-layout-container" data-theme="tech-blue" style="background:var(--bg-neutral-light)">
+  <header class="cub-header">
+    <button type="button" class="cub-button-base cub-button cub-button-icon cub-neutral cub-button-text" aria-label="選單" onClick="{{ toggleSidebar }}"><span class="cub-button-wrapper"><span class="cub-icon-bars"></span></span></button>
+    <div class="cub-header-logo" onClick="{{ goOverview }}"><span class="cub-icon-shield-check" style="color:var(--text-brand-main)"></span>AegisOps</div>
+    <div style="display:flex;align-items:center;gap:var(--component-margin-2xs);margin-left:auto">
+      <div class="cub-select cub-select-borderless cub-select-small {{ envOpenClass }}" style="position:relative;min-width:140px">
+        <div class="cub-select-trigger" onClick="{{ toggleEnv }}"><span class="cub-select-value"><span class="cub-select-value-text">{{ envLabel }}</span></span><span class="cub-select-arrow"><span class="cub-icon-chevron-down"></span></span></div>
+        <sc-if value="{{ envOpen }}" hint-placeholder-val="{{ false }}">
+          <div class="cub-select-panel" style="position:absolute;top:100%;left:0;min-width:160px;z-index:10">
+            <sc-for list="{{ envOptions }}" as="o" hint-placeholder-count="0"><div class="cub-option {{ o.cls }}" onClick="{{ o.pick }}"><span class="cub-option-text">{{ o.label }}</span></div></sc-for>
+          </div>
+        </sc-if>
+      </div>
+      <div class="cub-select cub-select-borderless cub-select-small {{ projOpenClass }}" style="position:relative;min-width:120px">
+        <div class="cub-select-trigger" onClick="{{ toggleProj }}"><span class="cub-select-value"><span class="cub-select-value-text">{{ projLabel }}</span></span><span class="cub-select-arrow"><span class="cub-icon-chevron-down"></span></span></div>
+        <sc-if value="{{ projOpen }}" hint-placeholder-val="{{ false }}">
+          <div class="cub-select-panel" style="position:absolute;top:100%;left:0;min-width:160px;z-index:10">
+            <sc-for list="{{ projOptions }}" as="o" hint-placeholder-count="0"><div class="cub-option {{ o.cls }}" onClick="{{ o.pick }}"><span class="cub-option-text">{{ o.label }}</span></div></sc-for>
+          </div>
+        </sc-if>
+      </div>
+      <div class="cub-select cub-select-borderless cub-select-small {{ timeOpenClass }}" style="position:relative;min-width:130px">
+        <div class="cub-select-trigger" onClick="{{ toggleTime }}"><span class="cub-select-value"><span class="cub-select-value-text">{{ timeLabel }}</span></span><span class="cub-select-arrow"><span class="cub-icon-chevron-down"></span></span></div>
+        <sc-if value="{{ timeOpen }}" hint-placeholder-val="{{ false }}">
+          <div class="cub-select-panel" style="position:absolute;top:100%;left:0;min-width:160px;z-index:10">
+            <sc-for list="{{ timeOptions }}" as="o" hint-placeholder-count="0"><div class="cub-option {{ o.cls }}" onClick="{{ o.pick }}"><span class="cub-option-text">{{ o.label }}</span></div></sc-for>
+          </div>
+        </sc-if>
+      </div>
+      <button type="button" class="cub-button-base cub-button cub-button-icon cub-neutral cub-button-text" aria-label="通知" onClick="{{ goIncidents }}"><span class="cub-button-wrapper"><div class="cub-badge cub-badge-error cub-badge-after cub-badge-small"><span class="cub-icon-bell"></span><span class="cub-badge-content">{{ activeCount }}</span></div></span></button>
+      <button type="button" class="cub-button-base cub-button cub-neutral cub-button-text"><span class="cub-button-wrapper"><span class="cub-button-prefix"><span class="cub-icon-user-circle"></span></span><span class="cub-button-content">Alan</span></span></button>
+    </div>
+  </header>
+
+  <div class="cub-layout-inner-container">
+    <div class="cub-layout-panel cub-layout-panel-start cub-layout-panel-side cub-layout-panel-opened cs-sidebar {{ sidebarClass }}">
+      <div class="cub-layout-panel-container">
+        <div class="cub-sidebar">
+          <div class="cub-sidebar-container">
+            <div class="cub-sidebar-content-container">
+              <nav class="cub-collapsible-menu {{ menuCollapsedClass }}" aria-label="主導覽" style="height:100%;display:flex;flex-direction:column">
+                <div class="cub-collapsible-menu-inline-content" style="flex:1 1 auto;display:flex;flex-direction:column">
+                  <div class="cub-collapsible-menu-list-group">
+                    <ul class="cub-collapsible-menu-list">
+                      <li><button type="button" class="cub-collapsible-menu-item {{ navOverview }}" onClick="{{ goOverview }}"><span class="cub-collapsible-menu-item-wrapper"><span class="cub-collapsible-menu-item-icon cub-icon-gauge"></span><span class="cub-collapsible-menu-item-content"><span class="cub-collapsible-menu-item-text">總覽</span></span></span></button></li>
+                      <li><button type="button" class="cub-collapsible-menu-item {{ navIncidents }}" onClick="{{ goIncidents }}"><span class="cub-collapsible-menu-item-wrapper"><span class="cub-collapsible-menu-item-icon cub-icon-siren"></span><span class="cub-collapsible-menu-item-content"><span class="cub-collapsible-menu-item-text">事件</span><span class="cub-collapsible-menu-count">{{ activeCount }}</span></span></span></button></li>
+                      <li><button type="button" class="cub-collapsible-menu-item {{ navProjects }}" onClick="{{ goProjects }}"><span class="cub-collapsible-menu-item-wrapper"><span class="cub-collapsible-menu-item-icon cub-icon-folders"></span><span class="cub-collapsible-menu-item-content"><span class="cub-collapsible-menu-item-text">專案</span></span></span></button></li>
+                      <li><button type="button" class="cub-collapsible-menu-item {{ navCost }}" onClick="{{ goCost }}"><span class="cub-collapsible-menu-item-wrapper"><span class="cub-collapsible-menu-item-icon cub-icon-dollar-sign-circle"></span><span class="cub-collapsible-menu-item-content"><span class="cub-collapsible-menu-item-text">成本優化</span><span class="cub-collapsible-menu-count">17</span></span></span></button></li>
+                      <li><button type="button" class="cub-collapsible-menu-item {{ navReports }}" onClick="{{ goReports }}"><span class="cub-collapsible-menu-item-wrapper"><span class="cub-collapsible-menu-item-icon cub-icon-file-chart-bar"></span><span class="cub-collapsible-menu-item-content"><span class="cub-collapsible-menu-item-text">報表與歷史</span></span></span></button></li>
+                      <li><button type="button" class="cub-collapsible-menu-item {{ navAudit }}" onClick="{{ goAudit }}"><span class="cub-collapsible-menu-item-wrapper"><span class="cub-collapsible-menu-item-icon cub-icon-clipboard-list"></span><span class="cub-collapsible-menu-item-content"><span class="cub-collapsible-menu-item-text">稽核紀錄</span></span></span></button></li>
+                    </ul>
+                  </div>
+                  <div style="flex:1 1 auto"></div>
+                  <div class="cub-divider cub-divider-horizontal" style="margin:var(--component-margin-2xs) 0"></div>
+                  <div class="cub-collapsible-menu-list-group">
+                    <ul class="cub-collapsible-menu-list">
+                      <li><button type="button" class="cub-collapsible-menu-item {{ navSettings }}" onClick="{{ goSettings }}"><span class="cub-collapsible-menu-item-wrapper"><span class="cub-collapsible-menu-item-icon cub-icon-gear"></span><span class="cub-collapsible-menu-item-content"><span class="cub-collapsible-menu-item-text">設定</span></span></span></button></li>
+                      <li><button type="button" class="cub-collapsible-menu-item"><span class="cub-collapsible-menu-item-wrapper"><span class="cub-collapsible-menu-item-icon cub-icon-user-circle"></span><span class="cub-collapsible-menu-item-content"><span class="cub-collapsible-menu-item-text" style="display:flex;flex-direction:column;align-items:flex-start;line-height:1.2"><span>Alan</span><span style="font:var(--font-body-s);color:var(--text-neutral-secondary)">DevOps 工程師</span></span></span></span></button></li>
+                    </ul>
+                  </div>
+                </div>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cub-layout-sticky-container">
+      <div class="cub-layout-content-container" style="background:var(--bg-neutral-light)">
+        <div class="cub-layout-content" style="display:flex;flex-direction:column;gap:var(--component-margin-s);position:relative">
+
+          <sc-if value="{{ loading }}" hint-placeholder-val="{{ false }}">
+            <div class="cub-loading cub-loading-backdrop cub-loading-backdrop-light" style="position:absolute;inset:0;z-index:5;display:flex;align-items:center;justify-content:center"><div class="cub-loading-spinner cub-loading-brand cub-loading-medium"><span class="cub-loading-spinner-icon cub-icon-spin-wheel cs-spin" style="font-size:var(--icon-body-l);color:var(--text-brand-main)"></span></div></div>
+          </sc-if>
+
+          <!-- ================= OVERVIEW ================= -->
+          <sc-if value="{{ isOverview }}" hint-placeholder-val="{{ true }}">
+            <div data-screen-label="總覽" style="display:flex;flex-direction:column;gap:var(--component-margin-s)">
+              <div class="cub-page-header">
+                <div class="cub-page-header-title"><div class="cub-page-header-heading"><h1>總覽</h1><div class="cub-page-header-sub">雲端健康、事件、AI 維運與成本效率的統一視圖</div></div></div>
+              </div>
+              <div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:var(--component-margin-s)">
+                <div class="cub-card"><div class="cub-card-content"><div class="cub-statistic"><div class="cub-statistic-label"><span class="cub-icon-folders"></span>管理中專案</div><div class="cub-statistic-value">12</div><div class="cub-statistic-trend cub-up"><span class="cub-icon-arrow-trend-up"></span>本月 +2</div></div></div></div>
+                <div class="cub-card cub-interactive" onClick="{{ goIncidents }}"><div class="cub-card-content"><div class="cub-statistic"><div class="cub-statistic-label"><span class="cub-icon-siren"></span>進行中事件</div><div class="cub-statistic-value" style="color:var(--text-error-main)">{{ activeCount }}</div><div class="cub-statistic-trend"><span class="cub-tag cub-tag-small cub-tag-red">{{ criticalCount }} 件嚴重</span></div></div></div></div>
+                <div class="cub-card"><div class="cub-card-content"><div class="cub-statistic"><div class="cub-statistic-label"><span class="cub-icon-shield-check"></span>健康服務比例</div><div class="cub-statistic-value">94%</div><div class="cub-statistic-trend cub-up"><span class="cub-icon-arrow-trend-up"></span>+2.1%</div></div></div></div>
+                <div class="cub-card cub-interactive" onClick="{{ goCost }}"><div class="cub-card-content"><div class="cub-statistic"><div class="cub-statistic-label"><span class="cub-icon-piggy-bank"></span>每月潛在節省</div><div class="cub-statistic-value cub-brand">NT$126K</div><div class="cub-statistic-trend">17 項優化機會</div></div></div></div>
+                <div class="cub-card"><div class="cub-card-content"><div class="cub-statistic"><div class="cub-statistic-label"><span class="cub-icon-robot"></span>AI 自動修復成功率</div><div class="cub-statistic-value">87%</div><div class="cub-statistic-trend cub-up"><span class="cub-icon-arrow-trend-up"></span>+5%</div></div></div></div>
+              </div>
+
+              <div style="display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:var(--component-margin-s)">
+                <div class="cub-card">
+                  <div class="cub-card-header-content"><h3 class="cub-card-header-title">專案健康</h3><div class="cub-card-header-end"><button type="button" class="cub-button-base cub-button cub-neutral cub-button-text cub-button-small" onClick="{{ goProjects }}"><span class="cub-button-wrapper"><span class="cub-button-content">全部專案</span><span class="cub-button-suffix"><span class="cub-icon-chevron-right"></span></span></span></button></div></div>
+                  <div class="cub-card-content">
+                    <table class="cub-table cub-table-small cs-table">
+                      <thead><tr><th>專案</th><th>環境</th><th>健康</th><th class="cub-column-amount">CPU</th><th class="cub-column-amount">記憶體</th><th class="cub-column-amount">月成本</th><th class="cub-column-amount">事件</th></tr></thead>
+                      <tbody>
+                        <sc-for list="{{ projectHealth }}" as="p" hint-placeholder-count="5">
+                          <tr class="cs-row-link" onClick="{{ p.open }}">
+                            <td><span style="font:var(--font-label-s);color:var(--text-brand-main)">{{ p.name }}</span></td>
+                            <td><span class="cub-tag cub-tag-small cub-tag-gray">{{ p.env }}</span></td>
+                            <td><span class="cub-tag cub-tag-small {{ p.healthTag }}">{{ p.health }}</span></td>
+                            <td class="cub-column-amount cub-tabular">{{ p.cpu }}</td>
+                            <td class="cub-column-amount cub-tabular">{{ p.mem }}</td>
+                            <td class="cub-column-amount cub-tabular">{{ p.cost }}</td>
+                            <td class="cub-column-amount cub-tabular">{{ p.incidents }}</td>
+                          </tr>
+                        </sc-for>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+                <div class="cub-card">
+                  <div class="cub-card-header-content"><h3 class="cub-card-header-title">近期 AI 活動</h3><div class="cub-card-header-end"><span class="cub-tag cub-tag-small cub-tag-orange">待批准</span></div></div>
+                  <div class="cub-card-content" style="display:flex;flex-direction:column;gap:var(--component-margin-s)">
+                    <div class="cub-timeline cub-brand">
+                      <sc-for list="{{ activity }}" as="a" hint-placeholder-count="5">
+                        <div class="cub-timeline-step {{ a.cls }}">
+                          <div class="cub-timeline-connector-container"><div class="cub-timeline-icon"><span class="{{ a.icon }}"></span></div><div class="cub-timeline-connector"></div></div>
+                          <div class="cub-timeline-content"><div style="display:flex;align-items:baseline;gap:var(--component-margin-2xs)"><span class="cub-tabular" style="font:var(--font-body-s);color:var(--text-neutral-third)">{{ a.time }}</span><span style="font:var(--font-label-s)">{{ a.agent }}</span></div><p style="margin:0;font:var(--font-body-s);color:var(--text-neutral-secondary)">{{ a.text }}</p></div>
+                        </div>
+                      </sc-for>
+                    </div>
+                    <button type="button" class="cub-button-base cub-button cub-brand cub-button-filled-outline cub-button-block" onClick="{{ openMainIncident }}"><span class="cub-button-wrapper"><span class="cub-button-content">查看事件 INC-1034</span></span></button>
+                  </div>
+                </div>
+              </div>
+
+              <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:var(--component-margin-s)">
+                <div class="cub-card">
+                  <div class="cub-card-header-content"><h3 class="cub-card-header-title">服務健康 — 過去 24 小時</h3><div class="cub-card-header-end" style="display:flex;gap:var(--component-margin-s);font:var(--font-body-s);color:var(--text-neutral-secondary)"><span><span class="cub-icon-circle-filled" style="font-size:var(--icon-body-s);color:var(--text-brand-main)"></span> 可用性</span><span><span class="cub-icon-circle-filled" style="font-size:var(--icon-body-s);color:var(--text-error-main)"></span> 錯誤率</span><span><span class="cub-icon-circle-filled" style="font-size:var(--icon-body-s);color:var(--text-warning-main)"></span> 延遲</span></div></div>
+                  <div class="cub-card-content">
+                    <svg viewBox="0 0 600 180" width="100%" height="180" role="img" aria-label="服務健康趨勢">
+                      <line x1="0" y1="45" x2="600" y2="45" stroke="var(--border-neutral-lighter)"></line><line x1="0" y1="90" x2="600" y2="90" stroke="var(--border-neutral-lighter)"></line><line x1="0" y1="135" x2="600" y2="135" stroke="var(--border-neutral-lighter)"></line><line x1="0" y1="170" x2="600" y2="170" stroke="var(--border-neutral-light)"></line>
+                      <polyline fill="none" stroke="var(--text-brand-main)" stroke-width="2" points="0,30 60,28 120,32 180,29 240,31 300,30 360,34 420,60 480,58 540,36 600,30"></polyline>
+                      <polyline fill="none" stroke="var(--text-error-main)" stroke-width="2" points="0,150 60,152 120,149 180,151 240,150 300,148 360,146 420,96 480,90 540,140 600,152"></polyline>
+                      <polyline fill="none" stroke="var(--text-warning-main)" stroke-width="2" points="0,130 60,128 120,132 180,130 240,129 300,131 360,126 420,105 480,100 540,124 600,130"></polyline>
+                      <text x="0" y="180" font-size="11" fill="var(--text-neutral-third)">00:00</text><text x="290" y="180" font-size="11" fill="var(--text-neutral-third)">12:00</text><text x="570" y="180" font-size="11" fill="var(--text-neutral-third)">現在</text>
+                    </svg>
+                  </div>
+                </div>
+                <div class="cub-card">
+                  <div class="cub-card-header-content"><h3 class="cub-card-header-title">Agent 管線 — INC-1034</h3><div class="cub-card-header-end"><span class="cub-tag cub-tag-small cub-tag-purple">Multi-Agent</span></div></div>
+                  <div class="cub-card-content" style="display:flex;flex-direction:column;gap:var(--component-margin-s)">
+                    <div class="cub-stepper cub-stepper-small">
+                      <div class="cub-stepper-header" style="flex-wrap:nowrap">
+                        <sc-for list="{{ pipeline }}" as="s" hint-placeholder-count="5">
+                          <div class="cub-stepper-line" style="{{ s.lineStyle }}"><div class="cub-stepper-line-bar"></div></div>
+                          <div class="cub-step-header cs-clickable {{ s.cls }}" style="display:flex" onClick="{{ s.open }}"><div class="cub-stepper-link cub-stepper-link-vertical"><div class="cub-stepper-label-container"><span class="cub-step-icon"><span class="cub-step-icon-wrapper {{ s.icon }}"></span></span><span class="cub-stepper-label">{{ s.name }}</span></div><span class="cub-stepper-description">{{ s.statusLabel }}</span></div></div>
+                        </sc-for>
+                      </div>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:var(--component-margin-2xs);padding:var(--component-padding-xs) var(--component-padding-s);background:var(--bg-neutral-light);border-radius:var(--radius-l);font:var(--font-body-s)">
+                      <span class="cub-icon-dollar-sign-circle" style="color:var(--text-success-main)"></span><span style="font:var(--font-label-s)">Cost Sentinel</span><span style="color:var(--text-neutral-secondary)">平行 Agent · 已完成 · 預估成本影響 +NT$350 / 月</span>
+                      <button type="button" class="cub-button-base cub-button cub-brand cub-button-text cub-button-small" style="margin-left:auto" onClick="{{ openCostAgent }}"><span class="cub-button-wrapper"><span class="cub-button-content">詳情</span></span></button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </sc-if>
+
+          <!-- ================= INCIDENTS ================= -->
+          <sc-if value="{{ isIncidents }}" hint-placeholder-val="{{ false }}">
+            <div data-screen-label="事件" style="display:flex;flex-direction:column;gap:var(--component-margin-s)">
+              <div class="cub-page-header"><div class="cub-page-header-title"><div class="cub-page-header-heading"><h1>事件</h1><div class="cub-page-header-sub">AI 輔助的事件偵測、診斷與修復</div></div></div></div>
+              <div class="cub-card">
+                <div class="cub-tab-group" style="position:relative">
+                  <div class="cub-tab-header" style="padding:0 var(--component-padding-l)"><div class="cub-tab-item-container"><div class="cub-tab-list"><div class="cub-tab-items">
+                    <sc-for list="{{ incidentTabs }}" as="t" hint-placeholder-count="5"><button type="button" class="cub-tab-item {{ t.cls }}" onClick="{{ t.pick }}"><span class="cub-tab-item-content"><span class="cub-tab-item-text">{{ t.label }}</span><span class="cub-tab-count">{{ t.count }}</span></span></button></sc-for>
+                  </div></div></div><span class="cub-ink-bar"></span></div>
+                </div>
+                <div class="cub-card-content" style="display:flex;flex-direction:column;gap:var(--component-margin-s)">
+                  <div style="display:flex;flex-wrap:wrap;gap:var(--component-margin-2xs);align-items:center">
+                    <div class="cub-select cub-select-outline cub-select-small {{ sevOpenClass }}" style="position:relative;min-width:130px">
+                      <div class="cub-select-trigger" onClick="{{ toggleSev }}"><span class="cub-select-value"><span class="cub-select-value-text">{{ sevLabel }}</span></span><span class="cub-select-arrow"><span class="cub-icon-chevron-down"></span></span></div>
+                      <sc-if value="{{ sevOpen }}" hint-placeholder-val="{{ false }}"><div class="cub-select-panel" style="position:absolute;top:100%;left:0;min-width:140px;z-index:10"><sc-for list="{{ sevOptions }}" as="o" hint-placeholder-count="0"><div class="cub-option {{ o.cls }}" onClick="{{ o.pick }}"><span class="cub-option-text">{{ o.label }}</span></div></sc-for></div></sc-if>
+                    </div>
+                    <div class="cub-select cub-select-outline cub-select-small" style="min-width:130px"><div class="cub-select-trigger"><span class="cub-select-value"><span class="cub-select-value-text">{{ projLabel }}</span></span><span class="cub-select-arrow"><span class="cub-icon-chevron-down"></span></span></div></div>
+                    <div class="cub-select cub-select-outline cub-select-small" style="min-width:130px"><div class="cub-select-trigger"><span class="cub-select-value"><span class="cub-select-value-text">{{ envLabel }}</span></span><span class="cub-select-arrow"><span class="cub-icon-chevron-down"></span></span></div></div>
+                    <div class="cub-select cub-select-outline cub-select-small" style="min-width:130px"><div class="cub-select-trigger"><span class="cub-select-value"><span class="cub-select-placeholder">Agent 狀態</span></span><span class="cub-select-arrow"><span class="cub-icon-chevron-down"></span></span></div></div>
+                    <div class="cub-input-group cub-input-group-small" style="min-width:180px"><div class="cub-input-group-container"><div class="cub-input-group-prefix"><span class="cub-icon-calendar"></span></div><div class="cub-input-group-infix"><input class="cub-input cub-input-outline cub-input-small" type="text" value="2026/09/07 – 2026/09/08" readOnly="{{ true }}"></div></div></div>
+                    <div class="cub-input-group cub-input-group-small" style="min-width:220px;margin-left:auto"><div class="cub-input-group-container"><div class="cub-input-group-prefix"><span class="cub-icon-magnifier"></span></div><div class="cub-input-group-infix"><input class="cub-input cub-input-outline cub-input-small" type="text" placeholder="搜尋事件 / 服務 / 根因" value="{{ search }}" onChange="{{ onSearch }}"></div></div></div>
+                  </div>
+                  <table class="cub-table cub-table-small cs-table">
+                    <thead><tr><th>嚴重度</th><th>事件</th><th>專案</th><th>服務</th><th>AI 根因</th><th class="cub-column-amount">信心度</th><th>狀態</th><th>開始</th><th>持續</th><th class="cub-column-actions">操作</th></tr></thead>
+                    <tbody>
+                      <sc-for list="{{ filteredIncidents }}" as="i" hint-placeholder-count="4">
+                        <tr class="cs-row-link" onClick="{{ i.open }}">
+                          <td><span class="cub-tag cub-tag-small {{ i.sevTag }}">{{ i.sevLabel }}</span></td>
+                          <td><div style="font:var(--font-label-s)">{{ i.title }}</div><div class="cs-mono" style="font:var(--font-body-s);color:var(--text-neutral-third)">{{ i.id }}</div></td>
+                          <td>{{ i.project }}</td>
+                          <td class="cs-mono">{{ i.service }}</td>
+                          <td>{{ i.rootCause }}</td>
+                          <td class="cub-column-amount cub-tabular">{{ i.confidence }}</td>
+                          <td><span class="cub-tag cub-tag-small {{ i.statusTag }}">{{ i.statusLabel }}</span></td>
+                          <td class="cub-tabular">{{ i.started }}</td>
+                          <td class="cub-tabular">{{ i.duration }}</td>
+                          <td class="cub-column-actions"><button type="button" class="cub-button-base cub-button cub-brand cub-button-text cub-button-small"><span class="cub-button-wrapper"><span class="cub-button-content">查看</span></span></button></td>
+                        </tr>
+                      </sc-for>
+                      <sc-if value="{{ noIncidents }}" hint-placeholder-val="{{ false }}">
+                        <tr class="cub-table-row-null"><td colSpan="10"><div style="display:flex;flex-direction:column;align-items:center;gap:var(--component-margin-2xs);padding:var(--component-padding-l)"><img src="assets/nodata.svg" alt="" style="width:120px"><span>查無符合條件的事件，請更換篩選條件</span></div></td></tr>
+                      </sc-if>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </sc-if>
+
+          <!-- ================= INCIDENT DETAIL ================= -->
+          <sc-if value="{{ isIncidentDetail }}" hint-placeholder-val="{{ false }}">
+            <div data-screen-label="事件詳情" style="display:flex;flex-direction:column;gap:var(--component-margin-s)">
+              <nav class="cub-breadcrumb"><ul>
+                <li class="cub-breadcrumb-item"><a class="cub-hyperlink cub-neutral-light cub-hyperlink-small" href="#" onClick="{{ goIncidents }}"><span class="cub-hyperlink-wrapper"><span class="cub-hyperlink-content">事件</span></span></a></li>
+                <li class="cub-breadcrumb-indicator"><span class="cub-icon-caret-right-filled"></span></li>
+                <li class="cub-breadcrumb-item">{{ inc.id }}</li>
+              </ul></nav>
+              <div class="cub-page-header">
+                <div class="cub-page-header-title">
+                  <button type="button" class="cub-button-base cub-button cub-button-icon cub-neutral cub-button-text cub-page-back" aria-label="返回" onClick="{{ goIncidents }}"><span class="cub-button-wrapper"><span class="cub-icon-arrow-left"></span></span></button>
+                  <div class="cub-page-header-heading">
+                    <div style="display:flex;align-items:center;gap:var(--component-margin-2xs)"><h1 style="margin:0">{{ inc.pageTitle }}</h1><span class="cub-tag {{ inc.sevTag }}">{{ inc.sevLabel }}</span><span class="cub-tag cub-tag-gray cs-mono">{{ inc.id }}</span></div>
+                    <div class="cub-page-header-sub" style="display:flex;flex-wrap:wrap;gap:var(--component-margin-s)"><span>專案：<b>{{ inc.project }}</b></span><span>環境：<b>{{ inc.env }}</b></span><span>服務：<b class="cs-mono">{{ inc.service }}</b></span><span>開始：<b>{{ inc.startedAt }}</b></span><span>持續：<b>{{ inc.duration }}</b></span><span>狀態：<span class="cub-tag cub-tag-small {{ inc.statusTag }}">{{ inc.statusLabel }}</span></span></div>
+                  </div>
+                </div>
+                <div class="cub-page-header-actions">
+                  <button type="button" class="cub-button-base cub-button cub-neutral cub-button-filled-outline cub-button-small" onClick="{{ shareIncident }}"><span class="cub-button-wrapper"><span class="cub-button-prefix"><span class="cub-icon-arrow-up-right-from-square"></span></span><span class="cub-button-content">分享</span></span></button>
+                  <button type="button" class="cub-button-base cub-button cub-button-icon cub-neutral cub-button-filled-outline cub-button-small" aria-label="更多"><span class="cub-button-wrapper"><span class="cub-icon-ellipsis-horizontal"></span></span></button>
+                  <button type="button" class="cub-button-base cub-button cub-brand cub-button-filled cub-button-small {{ ackDisabled }}" onClick="{{ ackIncident }}"><span class="cub-button-wrapper"><span class="cub-button-prefix"><span class="cub-icon-hand-check"></span></span><span class="cub-button-content">{{ ackLabel }}</span></span></button>
+                </div>
+              </div>
+
+              <sc-if value="{{ inc.resolved }}" hint-placeholder-val="{{ false }}">
+                <div class="cub-alert cub-alert-success"><span class="cub-alert-icon"><span class="cub-icon-check-circle-filled"></span></span><div class="cub-alert-content"><b>事件已解決。</b>AegisOps 已套用經批准的修復，錯誤率由 18.2% 降至 0.4%，復原時間 2m 41s。</div><button type="button" class="cub-button-base cub-button cub-success cub-button-text cub-button-small" onClick="{{ openPostMortem }}"><span class="cub-button-wrapper"><span class="cub-button-content">查看 Post-Mortem</span></span></button></div>
+              </sc-if>
+              <sc-if value="{{ inc.agentFailed }}" hint-placeholder-val="{{ false }}">
+                <div class="cub-alert cub-alert-error"><span class="cub-alert-icon"><span class="cub-icon-x-circle-filled"></span></span><div class="cub-alert-content"><b>Agent 分析失敗。</b>Diagnostic Agent 無法取得 Cloud Logging 資料（權限不足），已達重試上限 3 次。請檢查服務帳戶權限後重新啟動分析。</div><button type="button" class="cub-button-base cub-button cub-error cub-button-text cub-button-small" onClick="{{ retryAgent }}"><span class="cub-button-wrapper"><span class="cub-button-content">重新分析</span></span></button></div>
+              </sc-if>
+
+              <div class="cub-tab-group" style="position:relative">
+                <div class="cub-tab-header"><div class="cub-tab-item-container"><div class="cub-tab-list"><div class="cub-tab-items">
+                  <sc-for list="{{ detailTabs }}" as="t" hint-placeholder-count="4"><button type="button" class="cub-tab-item {{ t.cls }}" onClick="{{ t.pick }}"><span class="cub-tab-item-content"><span class="cub-tab-item-text">{{ t.label }}</span></span></button></sc-for>
+                </div></div></div><span class="cub-ink-bar"></span></div>
+              </div>
+
+              <!-- Tab: 總覽 -->
+              <sc-if value="{{ dtOverview }}" hint-placeholder-val="{{ true }}">
+                <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:var(--component-margin-s)">
+                  <div class="cub-card">
+                    <div class="cub-card-header-content"><h3 class="cub-card-header-title">遙測資料</h3><div class="cub-card-header-end">
+                      <div class="cub-segmented-control-group cub-segmented-control-group-small"><div class="cub-segmented-control-container"><div class="cub-segmented-control-item-container"><div class="cub-segmented-control-list"><div class="cub-segmented-control-items">
+                        <sc-for list="{{ metricOptions }}" as="m" hint-placeholder-count="4"><div class="cub-segmented-control-item {{ m.cls }}" onClick="{{ m.pick }}"><div class="cub-segmented-control-item-content"><span class="cub-segmented-control-item-text">{{ m.label }}</span></div></div></sc-for>
+                      </div></div></div></div></div>
+                    </div></div>
+                    <div class="cub-card-content" style="display:flex;flex-direction:column;gap:var(--component-margin-s)">
+                      <div style="display:flex;justify-content:space-between;font:var(--font-body-s);color:var(--text-neutral-secondary)"><span>{{ metricTitle }}</span><span class="cub-tabular">{{ metricRange }}</span></div>
+                      <svg viewBox="0 0 600 160" width="100%" height="160" role="img" aria-label="遙測趨勢">
+                        <line x1="0" y1="40" x2="600" y2="40" stroke="var(--border-neutral-lighter)"></line><line x1="0" y1="80" x2="600" y2="80" stroke="var(--border-neutral-lighter)"></line><line x1="0" y1="120" x2="600" y2="120" stroke="var(--border-neutral-lighter)"></line><line x1="0" y1="150" x2="600" y2="150" stroke="var(--border-neutral-light)"></line>
+                        <line x1="390" y1="0" x2="390" y2="150" stroke="var(--border-error-main)" stroke-dasharray="4 4"></line>
+                        <text x="396" y="12" font-size="11" fill="var(--text-error-main)">10:41 異常偵測</text>
+                        <polyline fill="none" stroke="{{ metricColor }}" stroke-width="2.5" points="{{ metricPoints }}"></polyline>
+                        <text x="0" y="160" font-size="11" fill="var(--text-neutral-third)">10:00</text><text x="560" y="160" font-size="11" fill="var(--text-neutral-third)">10:47</text>
+                      </svg>
+                      <div class="cub-grid cub-grid-4">
+                        <sc-for list="{{ telemetryStats }}" as="s" hint-placeholder-count="4"><div class="cub-statistic" style="padding:var(--component-padding-xs) var(--component-padding-s);background:var(--bg-neutral-light);border-radius:var(--radius-l)"><div class="cub-statistic-label">{{ s.label }}</div><div class="cub-statistic-value" style="{{ s.style }}">{{ s.value }}</div></div></sc-for>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="cub-card" style="border-color:var(--border-brand-main)">
+                    <div class="cub-card-header-content"><h3 class="cub-card-header-title" style="display:flex;align-items:center;gap:var(--component-margin-2xs)"><span class="cub-icon-microchip-ai" style="color:var(--text-brand-main)"></span>AI 根因分析</h3><div class="cub-card-header-end"><span class="cub-tag cub-tag-blue">信心度 {{ inc.confidence }}</span></div></div>
+                    <div class="cub-card-content" style="display:flex;flex-direction:column;gap:var(--component-margin-s)">
+                      <div><div style="font:var(--font-body-s);color:var(--text-neutral-secondary)">根因</div><div style="font:var(--font-h3);color:var(--text-neutral-title)">{{ inc.rootCauseTitle }}</div><div class="cs-mono" style="font:var(--font-body-s);color:var(--text-neutral-secondary)">{{ inc.rootCauseFile }}</div></div>
+                      <div><div style="font:var(--font-body-s);color:var(--text-neutral-secondary);margin-bottom:var(--component-margin-3xs)">證據</div>
+                        <ul style="list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:var(--component-margin-3xs)">
+                          <sc-for list="{{ inc.evidence }}" as="e" hint-placeholder-count="4"><li style="display:flex;gap:var(--component-margin-2xs);align-items:flex-start;font:var(--font-body-s)"><span class="cub-icon-check-circle-filled" style="color:var(--text-success-main);font-size:var(--icon-body-m)"></span><span>{{ e }}</span></li></sc-for>
+                        </ul>
+                      </div>
+                      <table class="cub-descriptions cub-descriptions-small"><tbody>
+                        <tr><th>建議修復</th><td>{{ inc.fix }}</td></tr>
+                        <tr><th>預估風險</th><td><span class="cub-tag cub-tag-small cub-tag-green">低</span></td><th>預估停機</th><td>0 分鐘</td></tr>
+                      </tbody></table>
+                      <button type="button" class="cub-button-base cub-button cub-brand cub-button-filled cub-button-block" onClick="{{ goRemediation }}"><span class="cub-button-wrapper"><span class="cub-button-content">檢視建議修復方案</span><span class="cub-button-suffix"><span class="cub-icon-arrow-right"></span></span></span></button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="cub-card">
+                  <div class="cub-card-header-content"><h3 class="cub-card-header-title">AI Agent 執行</h3><div class="cub-card-header-end"><span style="font:var(--font-body-s);color:var(--text-neutral-secondary)">點擊任一 Agent 查看輸入、分析與輸出</span></div></div>
+                  <div class="cub-card-content" style="display:grid;grid-template-columns:minmax(0,3fr) minmax(0,1fr);gap:var(--component-margin-m);align-items:center">
+                    <div class="cub-stepper">
+                      <div class="cub-stepper-header" style="flex-wrap:nowrap">
+                        <sc-for list="{{ pipelineFull }}" as="s" hint-placeholder-count="5">
+                          <div class="cub-stepper-line" style="{{ s.lineStyle }}"><div class="cub-stepper-line-bar"></div></div>
+                          <div class="cub-step-header cs-clickable {{ s.cls }}" style="display:flex" onClick="{{ s.open }}"><div class="cub-stepper-link cub-stepper-link-vertical"><div class="cub-stepper-label-container"><span class="cub-step-icon"><span class="cub-step-icon-wrapper {{ s.icon }}"></span></span><span class="cub-stepper-label">{{ s.name }}</span></div><span class="cub-stepper-description">{{ s.statusLabel }}</span></div></div>
+                        </sc-for>
+                      </div>
+                    </div>
+                    <div class="cs-clickable" style="display:flex;flex-direction:column;gap:var(--component-margin-3xs);padding:var(--component-padding-s);border-left:1px solid var(--border-neutral-lighter);cursor:pointer" onClick="{{ openCostAgent }}">
+                      <div style="display:flex;align-items:center;gap:var(--component-margin-2xs)"><span class="cub-icon-dollar-sign-circle" style="color:var(--text-success-main)"></span><span style="font:var(--font-label-s)">Cost Sentinel</span><span class="cub-tag cub-tag-small cub-tag-green">已完成</span></div>
+                      <div style="font:var(--font-body-s);color:var(--text-neutral-secondary)">平行 Agent · 預估成本影響</div>
+                      <div style="font:var(--font-h4)">+NT$350 / 月</div>
+                      <div style="font:var(--font-body-s);color:var(--text-neutral-third)">修復後 Cloud Run 執行個體重啟，無顯著成本影響</div>
+                    </div>
+                  </div>
+                </div>
+              </sc-if>
+
+              <!-- Tab: 日誌分析 -->
+              <sc-if value="{{ dtLogs }}" hint-placeholder-val="{{ false }}">
+                <div style="display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:var(--component-margin-s)">
+                  <div class="cub-card">
+                    <div class="cub-card-header-content"><h3 class="cub-card-header-title">日誌檢視器</h3><div class="cub-card-header-end"><span class="cub-tag cub-tag-small cub-tag-gray cs-mono">payment-service · Cloud Logging</span></div></div>
+                    <div class="cub-card-content">
+                      <div class="cs-mono" style="background:var(--bg-neutral-dark);color:var(--text-neutral-contrast);border-radius:var(--radius-l);padding:var(--component-padding-s);font-size:var(--font-size-1);line-height:1.7;overflow:auto">
+                        <sc-for list="{{ logs }}" as="l" hint-placeholder-count="6"><div style="display:flex;gap:var(--component-margin-s)"><span style="{{ l.style }};flex:none;width:52px">{{ l.level }}</span><span style="opacity:.6;flex:none">{{ l.ts }}</span><span>{{ l.msg }}</span></div></sc-for>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="cub-card">
+                    <div class="cub-card-header-content"><h3 class="cub-card-header-title" style="display:flex;align-items:center;gap:var(--component-margin-2xs)"><span class="cub-icon-microchip-ai" style="color:var(--text-brand-main)"></span>AI 摘要</h3></div>
+                    <div class="cub-card-content" style="display:flex;flex-direction:column;gap:var(--component-margin-s)">
+                      <p class="cub-card-text" style="margin:0">Diagnostic Agent 於 10:41–10:47 間比對 1,284 筆日誌，427 筆為同一錯誤樣式，與 Heap 使用量上升 43% 高度相關。</p>
+                      <table class="cub-descriptions cub-descriptions-small"><tbody>
+                        <tr><th>主要錯誤樣式</th><td class="cs-mono">Connection pool exhausted</td></tr>
+                        <tr><th>出現次數</th><td>427</td></tr>
+                        <tr><th>首次出現</th><td>2026/09/08 10:41:23</td></tr>
+                        <tr><th>最後出現</th><td>2026/09/08 10:46:58</td></tr>
+                        <tr><th>相關指標</th><td>Heap Usage、DB Connections、Error Rate</td></tr>
+                      </tbody></table>
+                    </div>
+                  </div>
+                </div>
+              </sc-if>
+
+              <!-- Tab: 程式碼分析 -->
+              <sc-if value="{{ dtCode }}" hint-placeholder-val="{{ false }}">
+                <div class="cub-card">
+                  <div class="cub-card-header-content"><h3 class="cub-card-header-title cs-mono">PaymentController.java</h3><div class="cub-card-header-end" style="display:flex;gap:var(--component-margin-2xs)"><span class="cub-tag cub-tag-red">潛在資源洩漏</span><span class="cub-tag cub-tag-blue">信心度 92%</span></div></div>
+                  <div class="cub-card-content" style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:var(--component-margin-s)">
+                    <div><div style="font:var(--font-label-s);margin-bottom:var(--component-margin-3xs)">目前程式碼</div>
+                      <div class="cs-mono" style="border:1px solid var(--border-neutral-lighter);border-radius:var(--radius-l);font-size:var(--font-size-1);line-height:1.8;overflow:hidden">
+                        <div style="padding:0 var(--component-padding-s);background:var(--bg-error-light)">connection.open();</div>
+                        <div style="padding:0 var(--component-padding-s)">processPayment();</div>
+                        <div style="padding:0 var(--component-padding-s);color:var(--text-neutral-third)">// connection 未關閉</div>
+                      </div></div>
+                    <div><div style="font:var(--font-label-s);margin-bottom:var(--component-margin-3xs)">AI 建議</div>
+                      <div class="cs-mono" style="border:1px solid var(--border-neutral-lighter);border-radius:var(--radius-l);font-size:var(--font-size-1);line-height:1.8;overflow:hidden">
+                        <div style="padding:0 var(--component-padding-s);background:var(--bg-success-light)">try (Connection connection = pool.getConnection()) {</div>
+                        <div style="padding:0 var(--component-padding-s);background:var(--bg-success-light)">&nbsp;&nbsp;processPayment();</div>
+                        <div style="padding:0 var(--component-padding-s);background:var(--bg-success-light)">}</div>
+                      </div></div>
+                  </div>
+                </div>
+              </sc-if>
+
+              <!-- Tab: Agent 詳情 -->
+              <sc-if value="{{ dtAgents }}" hint-placeholder-val="{{ false }}">
+                <div class="cub-card"><div class="cub-card-content">
+                  <table class="cub-table cub-table-small cs-table">
+                    <thead><tr><th>Agent</th><th>狀態</th><th>開始</th><th>完成</th><th>耗時</th><th>輸出</th><th class="cub-column-actions">操作</th></tr></thead>
+                    <tbody><sc-for list="{{ agentRows }}" as="a" hint-placeholder-count="6"><tr class="cs-row-link" onClick="{{ a.open }}"><td style="font:var(--font-label-s)">{{ a.name }}</td><td><span class="cub-tag cub-tag-small {{ a.tag }}">{{ a.statusLabel }}</span></td><td class="cub-tabular">{{ a.started }}</td><td class="cub-tabular">{{ a.completed }}</td><td class="cub-tabular">{{ a.durationText }}</td><td>{{ a.summary }}</td><td class="cub-column-actions"><button type="button" class="cub-button-base cub-button cub-brand cub-button-text cub-button-small"><span class="cub-button-wrapper"><span class="cub-button-content">詳情</span></span></button></td></tr></sc-for></tbody>
+                  </table>
+                </div></div>
+              </sc-if>
+            </div>
+          </sc-if>
+
+          <!-- ================= REMEDIATION ================= -->
+          <sc-if value="{{ isRemediation }}" hint-placeholder-val="{{ false }}">
+            <div data-screen-label="AI 建議修復" style="display:flex;flex-direction:column;gap:var(--component-margin-s);padding-bottom:72px">
+              <nav class="cub-breadcrumb"><ul>
+                <li class="cub-breadcrumb-item"><a class="cub-hyperlink cub-neutral-light cub-hyperlink-small" href="#" onClick="{{ goIncidents }}"><span class="cub-hyperlink-wrapper"><span class="cub-hyperlink-content">事件</span></span></a></li>
+                <li class="cub-breadcrumb-indicator"><span class="cub-icon-caret-right-filled"></span></li>
+                <li class="cub-breadcrumb-item"><a class="cub-hyperlink cub-neutral-light cub-hyperlink-small" href="#" onClick="{{ openMainIncident }}"><span class="cub-hyperlink-wrapper"><span class="cub-hyperlink-content">INC-1034</span></span></a></li>
+                <li class="cub-breadcrumb-indicator"><span class="cub-icon-caret-right-filled"></span></li>
+                <li class="cub-breadcrumb-item">建議修復</li>
+              </ul></nav>
+              <div class="cub-page-header">
+                <div class="cub-page-header-title">
+                  <button type="button" class="cub-button-base cub-button cub-button-icon cub-neutral cub-button-text cub-page-back" aria-label="返回" onClick="{{ openMainIncident }}"><span class="cub-button-wrapper"><span class="cub-icon-arrow-left"></span></span></button>
+                  <div class="cub-page-header-heading"><div style="display:flex;align-items:center;gap:var(--component-margin-2xs)"><h1 style="margin:0">AI 建議修復方案</h1><span class="cub-tag cub-tag-purple">Mitigation Agent</span></div><div class="cub-page-header-sub">INC-1034 · Payment API — 高錯誤率 · Project B / PROD</div></div>
+                </div>
+              </div>
+
+              <sc-if value="{{ execIdle }}" hint-placeholder-val="{{ true }}">
+                <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:var(--component-margin-s)">
+                  <div class="cub-card">
+                    <div class="cub-card-header-content"><h3 class="cub-card-header-title">建議動作</h3></div>
+                    <div class="cub-card-content" style="display:flex;flex-direction:column;gap:var(--component-margin-s)">
+                      <ol style="margin:0;padding-left:var(--component-padding-l);display:flex;flex-direction:column;gap:var(--component-margin-3xs)"><li>重啟 Cloud Run 執行個體</li><li>套用連線池修復（PaymentController.java）並重新部署 payment-service</li></ol>
+                      <table class="cub-descriptions cub-descriptions-small"><tbody>
+                        <tr><th>風險</th><td><span class="cub-tag cub-tag-small cub-tag-green">低</span></td><th>預期停機</th><td>無</td></tr>
+                        <tr><th>回滾</th><td><span class="cub-tag cub-tag-small cub-tag-blue">可用</span></td><th>預估時間</th><td>2–3 分鐘</td></tr>
+                      </tbody></table>
+                    </div>
+                  </div>
+                  <div class="cub-card">
+                    <div class="cub-card-header-content"><h3 class="cub-card-header-title">預期影響</h3></div>
+                    <div class="cub-card-content">
+                      <table class="cub-descriptions cub-descriptions-small"><tbody>
+                        <tr><th>錯誤率</th><td><span class="cub-tabular" style="color:var(--text-error-main)">18.2%</span> <span class="cub-icon-arrow-right" style="font-size:var(--icon-body-s);color:var(--text-neutral-third)"></span> <b style="color:var(--text-success-main)">&lt; 1%</b></td></tr>
+                        <tr><th>CPU</th><td><span class="cub-tabular" style="color:var(--text-error-main)">97%</span> <span class="cub-icon-arrow-right" style="font-size:var(--icon-body-s);color:var(--text-neutral-third)"></span> <b style="color:var(--text-success-main)">55–70%</b></td></tr>
+                        <tr><th>停機</th><td>無</td></tr>
+                        <tr><th>預估復原</th><td>2–3 分鐘</td></tr>
+                        <tr><th>回滾</th><td>可用</td></tr>
+                      </tbody></table>
+                    </div>
+                  </div>
+                </div>
+                <div class="cub-card">
+                  <div class="cub-card-header-content"><h3 class="cub-card-header-title">程式碼變更</h3><div class="cub-card-header-end"><span class="cs-mono" style="font:var(--font-body-s);color:var(--text-neutral-secondary)">src/main/java/com/example/PaymentController.java</span></div></div>
+                  <div class="cub-card-content">
+                    <div class="cs-mono" style="border:1px solid var(--border-neutral-lighter);border-radius:var(--radius-l);font-size:var(--font-size-1);line-height:1.8;overflow:hidden">
+                      <div style="padding:0 var(--component-padding-s);color:var(--text-neutral-third)">@@ -42,3 +42,5 @@ public PaymentResponse process(PaymentRequest req) {</div>
+                      <div style="padding:0 var(--component-padding-s);background:var(--bg-error-light)">-&nbsp;&nbsp;connection.open();</div>
+                      <div style="padding:0 var(--component-padding-s);background:var(--bg-error-light)">-&nbsp;&nbsp;processPayment();</div>
+                      <div style="padding:0 var(--component-padding-s);background:var(--bg-success-light)">+&nbsp;&nbsp;try (Connection connection = pool.getConnection()) {</div>
+                      <div style="padding:0 var(--component-padding-s);background:var(--bg-success-light)">+&nbsp;&nbsp;&nbsp;&nbsp;// process request</div>
+                      <div style="padding:0 var(--component-padding-s);background:var(--bg-success-light)">+&nbsp;&nbsp;&nbsp;&nbsp;processPayment();</div>
+                      <div style="padding:0 var(--component-padding-s);background:var(--bg-success-light)">+&nbsp;&nbsp;}</div>
+                    </div>
+                    <div style="display:flex;gap:var(--component-margin-s);margin-top:var(--component-margin-2xs);font:var(--font-body-s);color:var(--text-neutral-secondary)"><span><span class="cub-tag cub-tag-small cub-tag-red">−2</span> 移除</span><span><span class="cub-tag cub-tag-small cub-tag-green">+4</span> 新增</span><span>單元測試：PaymentControllerTest · 12 / 12 通過</span></div>
+                  </div>
+                </div>
+              </sc-if>
+
+              <sc-if value="{{ execRunning }}" hint-placeholder-val="{{ false }}">
+                <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:var(--component-margin-s)">
+                  <div class="cub-card">
+                    <div class="cub-card-header-content"><h3 class="cub-card-header-title">執行進度</h3><div class="cub-card-header-end"><span class="cub-tag cub-tag-blue cs-pulse">執行中</span></div></div>
+                    <div class="cub-card-content">
+                      <div class="cub-stepper cub-stepper-vertical">
+                        <div class="cub-stepper-header">
+                          <sc-for list="{{ execSteps }}" as="s" hint-placeholder-count="7"><div class="cub-step-header {{ s.cls }}" style="display:block"><div class="cub-stepper-link"><div class="cub-stepper-label-container"><span class="cub-step-icon"><span class="cub-step-icon-wrapper {{ s.icon }}">{{ s.numText }}</span></span><span class="cub-stepper-label">{{ s.name }}</span></div><span class="cub-stepper-description">{{ s.desc }}</span></div></div></sc-for>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="cub-card">
+                    <div class="cub-card-header-content"><h3 class="cub-card-header-title">即時遙測</h3></div>
+                    <div class="cub-card-content" style="display:flex;flex-direction:column;gap:var(--component-margin-s)">
+                      <div class="cub-alert cub-alert-neutral"><span class="cub-alert-icon"><span class="cub-icon-info-circle-filled"></span></span><div class="cub-alert-content">由 Alan 於 {{ approvedAt }} 批准。Mitigation Agent 正在依核准內容執行，如有異常將自動回滾。</div></div>
+                      <div class="cub-grid cub-grid-2">
+                        <div class="cub-statistic" style="padding:var(--component-padding-xs) var(--component-padding-s);background:var(--bg-neutral-light);border-radius:var(--radius-l)"><div class="cub-statistic-label">錯誤率</div><div class="cub-statistic-value cub-tabular" style="color:var(--text-error-main)">{{ liveError }}</div></div>
+                        <div class="cub-statistic" style="padding:var(--component-padding-xs) var(--component-padding-s);background:var(--bg-neutral-light);border-radius:var(--radius-l)"><div class="cub-statistic-label">CPU</div><div class="cub-statistic-value cub-tabular">{{ liveCpu }}</div></div>
+                      </div>
+                      <div class="cs-mono" style="background:var(--bg-neutral-dark);color:var(--text-neutral-contrast);border-radius:var(--radius-l);padding:var(--component-padding-s);font-size:var(--font-size-1);line-height:1.7;min-height:120px">
+                        <sc-for list="{{ execLog }}" as="l" hint-placeholder-count="0"><div>{{ l }}</div></sc-for>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </sc-if>
+
+              <sc-if value="{{ execDone }}" hint-placeholder-val="{{ false }}">
+                <div class="cub-card"><div class="cub-card-content" style="display:flex;flex-direction:column;align-items:center;gap:var(--component-margin-m);padding:var(--component-padding-xl)">
+                  <img src="assets/success.svg" alt="" style="width:160px">
+                  <div style="text-align:center"><div style="font:var(--font-title-l);color:var(--text-neutral-title)">事件已解決</div><div style="font:var(--font-body-m);color:var(--text-neutral-secondary);margin-top:var(--component-margin-3xs)">AegisOps 已成功套用經批准的修復方案。</div></div>
+                  <div class="cub-grid cub-grid-4" style="width:100%;max-width:880px">
+                    <div class="cub-statistic" style="align-items:center;padding:var(--component-padding-s);background:var(--bg-neutral-light);border-radius:var(--radius-l)"><div class="cub-statistic-label">錯誤率</div><div class="cub-statistic-value cub-tabular"><span style="color:var(--text-neutral-third);font:var(--font-body-m)">18.2% → </span><span style="color:var(--text-success-main)">0.4%</span></div></div>
+                    <div class="cub-statistic" style="align-items:center;padding:var(--component-padding-s);background:var(--bg-neutral-light);border-radius:var(--radius-l)"><div class="cub-statistic-label">復原時間</div><div class="cub-statistic-value cub-tabular">2m 41s</div></div>
+                    <div class="cub-statistic" style="align-items:center;padding:var(--component-padding-s);background:var(--bg-neutral-light);border-radius:var(--radius-l)"><div class="cub-statistic-label">部署</div><div class="cub-statistic-value" style="color:var(--text-success-main)">成功</div></div>
+                    <div class="cub-statistic" style="align-items:center;padding:var(--component-padding-s);background:var(--bg-neutral-light);border-radius:var(--radius-l)"><div class="cub-statistic-label">回滾</div><div class="cub-statistic-value">不需要</div></div>
+                  </div>
+                  <div style="display:flex;gap:var(--component-margin-2xs)">
+                    <button type="button" class="cub-button-base cub-button cub-neutral cub-button-filled-outline cub-button-with-min-width" onClick="{{ openMainIncident }}"><span class="cub-button-wrapper"><span class="cub-button-content">返回事件</span></span></button>
+                    <button type="button" class="cub-button-base cub-button cub-brand cub-button-filled cub-button-with-min-width" onClick="{{ openPostMortem }}"><span class="cub-button-wrapper"><span class="cub-button-content">查看 Post-Mortem</span></span></button>
+                  </div>
+                </div></div>
+              </sc-if>
+            </div>
+          </sc-if>
+
+          <!-- ================= COST ================= -->
+          <sc-if value="{{ isCost }}" hint-placeholder-val="{{ false }}">
+            <div data-screen-label="成本優化" style="display:flex;flex-direction:column;gap:var(--component-margin-s)">
+              <div class="cub-page-header"><div class="cub-page-header-title"><div class="cub-page-header-heading"><h1>成本優化</h1><div class="cub-page-header-sub">AI 驅動的雲端資源調整與成本治理</div></div></div></div>
+              <div class="cub-grid cub-grid-4">
+                <div class="cub-card"><div class="cub-card-content"><div class="cub-statistic"><div class="cub-statistic-label">目前月成本</div><div class="cub-statistic-value">NT$1.24M</div><div class="cub-statistic-trend cub-down"><span class="cub-icon-arrow-trend-up"></span>較上月 +6.8%</div></div></div></div>
+                <div class="cub-card"><div class="cub-card-content"><div class="cub-statistic"><div class="cub-statistic-label">每月潛在節省</div><div class="cub-statistic-value cub-brand">NT$186K</div><div class="cub-statistic-trend">約 15% 月成本</div></div></div></div>
+                <div class="cub-card"><div class="cub-card-content"><div class="cub-statistic"><div class="cub-statistic-label">優化機會</div><div class="cub-statistic-value">17</div><div class="cub-statistic-trend">{{ appliedCount }} 項已套用</div></div></div></div>
+                <div class="cub-card"><div class="cub-card-content"><div class="cub-statistic"><div class="cub-statistic-label">預估月成本</div><div class="cub-statistic-value" style="color:var(--text-warning-main)">NT$1.36M</div><div class="cub-statistic-trend"><span class="cub-tag cub-tag-small cub-tag-orange">預估超出預算</span></div></div></div></div>
+              </div>
+              <div class="cub-tab-group" style="position:relative"><div class="cub-tab-header"><div class="cub-tab-item-container"><div class="cub-tab-list"><div class="cub-tab-items">
+                <sc-for list="{{ costTabs }}" as="t" hint-placeholder-count="3"><button type="button" class="cub-tab-item {{ t.cls }}" onClick="{{ t.pick }}"><span class="cub-tab-item-content"><span class="cub-tab-item-text">{{ t.label }}</span><span class="cub-tab-count">{{ t.count }}</span></span></button></sc-for>
+              </div></div></div><span class="cub-ink-bar"></span></div></div>
+
+              <sc-if value="{{ ctOpps }}" hint-placeholder-val="{{ true }}">
+                <div class="cub-card"><div class="cub-card-content">
+                  <table class="cub-table cub-table-small cs-table">
+                    <thead><tr><th>資源</th><th>類型</th><th>專案</th><th>目前規格</th><th>使用率</th><th>AI 建議</th><th class="cub-column-amount">每月節省</th><th>風險</th><th>狀態</th><th class="cub-column-actions">操作</th></tr></thead>
+                    <tbody><sc-for list="{{ costRows }}" as="c" hint-placeholder-count="4"><tr class="cs-row-link" onClick="{{ c.open }}"><td style="font:var(--font-label-s)">{{ c.resource }}</td><td>{{ c.type }}</td><td>{{ c.project }}</td><td class="cs-mono">{{ c.spec }}</td><td class="cub-tabular">{{ c.usage }}</td><td class="cs-mono" style="color:var(--text-brand-main)">{{ c.rec }}</td><td class="cub-column-amount cub-tabular">{{ c.saving }}</td><td><span class="cub-tag cub-tag-small cub-tag-green">低</span></td><td><span class="cub-tag cub-tag-small {{ c.statusTag }}">{{ c.statusLabel }}</span></td><td class="cub-column-actions"><button type="button" class="cub-button-base cub-button cub-brand cub-button-text cub-button-small"><span class="cub-button-wrapper"><span class="cub-button-content">檢視</span></span></button></td></tr></sc-for></tbody>
+                  </table>
+                </div></div>
+              </sc-if>
+
+              <sc-if value="{{ ctForecast }}" hint-placeholder-val="{{ false }}">
+                <div style="display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:var(--component-margin-s)">
+                  <div class="cub-card">
+                    <div class="cub-card-header-content"><h3 class="cub-card-header-title">成本預測 — Project B</h3><div class="cub-card-header-end" style="display:flex;gap:var(--component-margin-s);font:var(--font-body-s);color:var(--text-neutral-secondary)"><span><span class="cub-icon-circle-filled" style="font-size:var(--icon-body-s);color:var(--text-brand-main)"></span> 實際</span><span><span class="cub-icon-minus" style="font-size:var(--icon-body-s);color:var(--text-brand-main)"></span> 預測</span><span><span class="cub-icon-minus" style="font-size:var(--icon-body-s);color:var(--text-error-main)"></span> 預算</span></div></div>
+                    <div class="cub-card-content">
+                      <svg viewBox="0 0 640 220" width="100%" height="220" role="img" aria-label="成本預測">
+                        <line x1="40" y1="30" x2="640" y2="30" stroke="var(--border-neutral-lighter)"></line><line x1="40" y1="80" x2="640" y2="80" stroke="var(--border-neutral-lighter)"></line><line x1="40" y1="130" x2="640" y2="130" stroke="var(--border-neutral-lighter)"></line><line x1="40" y1="180" x2="640" y2="180" stroke="var(--border-neutral-light)"></line>
+                        <text x="0" y="34" font-size="11" fill="var(--text-neutral-third)">1.5M</text><text x="0" y="84" font-size="11" fill="var(--text-neutral-third)">1.3M</text><text x="0" y="134" font-size="11" fill="var(--text-neutral-third)">1.1M</text><text x="0" y="184" font-size="11" fill="var(--text-neutral-third)">0.9M</text>
+                        <line x1="40" y1="80" x2="640" y2="80" stroke="var(--border-error-main)" stroke-dasharray="6 4"></line><text x="590" y="74" font-size="11" fill="var(--text-error-main)">預算 1.30M</text>
+                        <rect x="440" y="10" width="200" height="170" fill="var(--bg-neutral-light)" opacity=".6"></rect><text x="450" y="24" font-size="11" fill="var(--text-neutral-third)">預測區間</text>
+                        <polyline fill="none" stroke="var(--text-brand-main)" stroke-width="2.5" points="60,160 155,150 250,142 345,120 440,102"></polyline>
+                        <polyline fill="none" stroke="var(--text-brand-main)" stroke-width="2.5" stroke-dasharray="6 5" points="440,102 535,88 630,50"></polyline>
+                        <circle cx="630" cy="50" r="4" fill="var(--text-error-main)"></circle><text x="560" y="44" font-size="11" fill="var(--text-error-main)">1.42M</text>
+                        <text x="52" y="200" font-size="11" fill="var(--text-neutral-third)">4 月</text><text x="147" y="200" font-size="11" fill="var(--text-neutral-third)">5 月</text><text x="242" y="200" font-size="11" fill="var(--text-neutral-third)">6 月</text><text x="337" y="200" font-size="11" fill="var(--text-neutral-third)">7 月</text><text x="432" y="200" font-size="11" fill="var(--text-neutral-third)">8 月</text><text x="527" y="200" font-size="11" fill="var(--text-neutral-third)">9 月</text><text x="618" y="200" font-size="11" fill="var(--text-neutral-third)">10 月</text>
+                      </svg>
+                    </div>
+                  </div>
+                  <div style="display:flex;flex-direction:column;gap:var(--component-margin-s)">
+                    <div class="cub-card"><div class="cub-card-content" style="display:flex;flex-direction:column;gap:var(--component-margin-s)">
+                      <div class="cub-statistic"><div class="cub-statistic-label">預估 10 月成本</div><div class="cub-statistic-value">NT$1.42M</div></div>
+                      <div class="cub-statistic"><div class="cub-statistic-label">預算</div><div class="cub-statistic-value" style="font:var(--font-title-s)">NT$1.30M</div></div>
+                      <div class="cub-statistic"><div class="cub-statistic-label">預期超出預算</div><div class="cub-statistic-value" style="color:var(--text-error-main)">NT$120K</div><div class="cub-statistic-trend cub-down"><span class="cub-icon-arrow-trend-up"></span>9.2%</div></div>
+                    </div></div>
+                    <div class="cub-card" style="border-color:var(--border-brand-main)">
+                      <div class="cub-card-header-content"><h3 class="cub-card-header-title" style="display:flex;align-items:center;gap:var(--component-margin-2xs)"><span class="cub-icon-microchip-ai" style="color:var(--text-brand-main)"></span>AegisOps Insight</h3></div>
+                      <div class="cub-card-content" style="display:flex;flex-direction:column;gap:var(--component-margin-s)">
+                        <p class="cub-card-text" style="margin:0;color:var(--text-neutral-primary)">依過去 90 天用量推估，Project B 預計超出月預算 9.2%。</p>
+                        <table class="cub-descriptions cub-descriptions-small"><tbody><tr><th>主要成本驅動</th><td>Cloud Run 流量 <span class="cub-tag cub-tag-small cub-tag-red">+28%</span></td></tr><tr><th>建議動作</th><td>檢視自動擴展門檻並優化 Cloud Run 執行個體配置。</td></tr></tbody></table>
+                        <button type="button" class="cub-button-base cub-button cub-brand cub-button-filled cub-button-block" onClick="{{ pickCostOpps }}"><span class="cub-button-wrapper"><span class="cub-button-content">查看優化建議</span></span></button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </sc-if>
+
+              <sc-if value="{{ ctAnomaly }}" hint-placeholder-val="{{ false }}">
+                <div class="cub-card"><div class="cub-card-content">
+                  <table class="cub-table cub-table-small cs-table">
+                    <thead><tr><th>嚴重度</th><th>異常</th><th>資源</th><th>專案</th><th class="cub-column-amount">每月影響</th><th>偵測時間</th></tr></thead>
+                    <tbody><sc-for list="{{ anomalies }}" as="a" hint-placeholder-count="4"><tr><td><span class="cub-tag cub-tag-small {{ a.tag }}">{{ a.sev }}</span></td><td style="font:var(--font-label-s)">{{ a.title }}</td><td class="cs-mono">{{ a.resource }}</td><td>{{ a.project }}</td><td class="cub-column-amount cub-tabular">{{ a.impact }}</td><td class="cub-tabular">{{ a.at }}</td></tr></sc-for></tbody>
+                  </table>
+                </div></div>
+              </sc-if>
+            </div>
+          </sc-if>
+
+          <!-- ================= REPORTS ================= -->
+          <sc-if value="{{ isReports }}" hint-placeholder-val="{{ false }}">
+            <div data-screen-label="報表與歷史" style="display:flex;flex-direction:column;gap:var(--component-margin-s)">
+              <div class="cub-page-header"><div class="cub-page-header-title"><div class="cub-page-header-heading"><h1>報表與歷史</h1><div class="cub-page-header-sub">事件解決歷史、AI 決策與 Post-Mortem 報告</div></div></div><div class="cub-page-header-actions"><button type="button" class="cub-button-base cub-button cub-neutral cub-button-filled-outline cub-button-small" onClick="{{ exportReports }}"><span class="cub-button-wrapper"><span class="cub-button-prefix"><span class="cub-icon-file-excel"></span></span><span class="cub-button-content">匯出 Excel</span></span></button></div></div>
+              <div class="cub-card"><div class="cub-card-content" style="display:flex;flex-direction:column;gap:var(--component-margin-s)">
+                <div style="display:flex;flex-wrap:wrap;gap:var(--component-margin-2xs)">
+                  <div class="cub-input-group cub-input-group-small" style="min-width:160px"><div class="cub-input-group-container"><div class="cub-input-group-infix"><input class="cub-input cub-input-outline cub-input-small" type="text" placeholder="事件編號"></div></div></div>
+                  <div class="cub-select cub-select-outline cub-select-small" style="min-width:130px"><div class="cub-select-trigger"><span class="cub-select-value"><span class="cub-select-value-text">全部專案</span></span><span class="cub-select-arrow"><span class="cub-icon-chevron-down"></span></span></div></div>
+                  <div class="cub-select cub-select-outline cub-select-small" style="min-width:130px"><div class="cub-select-trigger"><span class="cub-select-value"><span class="cub-select-placeholder">根因</span></span><span class="cub-select-arrow"><span class="cub-icon-chevron-down"></span></span></div></div>
+                  <div class="cub-select cub-select-outline cub-select-small" style="min-width:130px"><div class="cub-select-trigger"><span class="cub-select-value"><span class="cub-select-placeholder">動作</span></span><span class="cub-select-arrow"><span class="cub-icon-chevron-down"></span></span></div></div>
+                  <div class="cub-select cub-select-outline cub-select-small" style="min-width:130px"><div class="cub-select-trigger"><span class="cub-select-value"><span class="cub-select-placeholder">批准者</span></span><span class="cub-select-arrow"><span class="cub-icon-chevron-down"></span></span></div></div>
+                  <div class="cub-select cub-select-outline cub-select-small {{ resOpenClass }}" style="position:relative;min-width:130px">
+                    <div class="cub-select-trigger" onClick="{{ toggleRes }}"><span class="cub-select-value"><span class="cub-select-value-text">{{ resLabel }}</span></span><span class="cub-select-arrow"><span class="cub-icon-chevron-down"></span></span></div>
+                    <sc-if value="{{ resOpen }}" hint-placeholder-val="{{ false }}"><div class="cub-select-panel" style="position:absolute;top:100%;left:0;min-width:140px;z-index:10"><sc-for list="{{ resOptions }}" as="o" hint-placeholder-count="0"><div class="cub-option {{ o.cls }}" onClick="{{ o.pick }}"><span class="cub-option-text">{{ o.label }}</span></div></sc-for></div></sc-if>
+                  </div>
+                  <div class="cub-input-group cub-input-group-small" style="min-width:200px"><div class="cub-input-group-container"><div class="cub-input-group-prefix"><span class="cub-icon-calendar"></span></div><div class="cub-input-group-infix"><input class="cub-input cub-input-outline cub-input-small" type="text" value="2026/09/01 – 2026/09/08" readOnly="{{ true }}"></div></div></div>
+                </div>
+                <table class="cub-table cub-table-small cs-table">
+                  <thead><tr><th>事件編號</th><th>專案</th><th>根因</th><th>動作</th><th>批准者</th><th>結果</th><th class="cub-column-amount">復原時間</th><th>日期</th><th class="cub-column-actions">操作</th></tr></thead>
+                  <tbody>
+                    <sc-for list="{{ reportRows }}" as="r" hint-placeholder-count="3"><tr class="cs-row-link" onClick="{{ r.open }}"><td class="cs-mono" style="font:var(--font-label-s)">{{ r.id }}</td><td>{{ r.project }}</td><td>{{ r.rootCause }}</td><td>{{ r.action }}</td><td>{{ r.approver }}</td><td><span class="cub-tag cub-tag-small {{ r.tag }}">{{ r.result }}</span></td><td class="cub-column-amount cub-tabular">{{ r.recovery }}</td><td>{{ r.date }}</td><td class="cub-column-actions"><button type="button" class="cub-button-base cub-button cub-brand cub-button-text cub-button-small"><span class="cub-button-wrapper"><span class="cub-button-content">報告</span></span></button></td></tr></sc-for>
+                    <sc-if value="{{ noReports }}" hint-placeholder-val="{{ false }}"><tr class="cub-table-row-null"><td colSpan="9"><div style="display:flex;flex-direction:column;align-items:center;gap:var(--component-margin-2xs);padding:var(--component-padding-l)"><img src="assets/nodata.svg" alt="" style="width:120px"><span>查無報告，請更換篩選條件</span></div></td></tr></sc-if>
+                  </tbody>
+                </table>
+              </div></div>
+            </div>
+          </sc-if>
+
+          <!-- ================= AUDIT ================= -->
+          <sc-if value="{{ isAudit }}" hint-placeholder-val="{{ false }}">
+            <div data-screen-label="稽核紀錄" style="display:flex;flex-direction:column;gap:var(--component-margin-s)">
+              <div class="cub-page-header"><div class="cub-page-header-title"><div class="cub-page-header-heading"><h1>稽核紀錄</h1><div class="cub-page-header-sub">人員、AI Agent 與系統的所有操作皆留存紀錄</div></div></div></div>
+              <div class="cub-alert cub-alert-neutral"><span class="cub-alert-icon"><span class="cub-icon-lock"></span></span><div class="cub-alert-content"><b>不可修改的活動紀錄。</b>所有紀錄以附加寫入方式保存，並附帶雜湊鏈驗證；紀錄一經寫入即無法編輯或刪除。</div></div>
+              <div class="cub-card"><div class="cub-card-content">
+                <table class="cub-table cub-table-small cs-table">
+                  <thead><tr><th>時間</th><th>執行者</th><th>類型</th><th>專案</th><th>動作</th><th>目標</th><th>結果</th><th>IP / 來源</th><th>詳情</th></tr></thead>
+                  <tbody><sc-for list="{{ auditRows }}" as="a" hint-placeholder-count="8"><tr><td class="cub-tabular cs-mono">{{ a.ts }}</td><td style="font:var(--font-label-s)">{{ a.actor }}</td><td><span class="cub-tag cub-tag-small {{ a.typeTag }}">{{ a.type }}</span></td><td>{{ a.project }}</td><td>{{ a.action }}</td><td class="cs-mono">{{ a.target }}</td><td><span class="cub-tag cub-tag-small {{ a.resultTag }}">{{ a.result }}</span></td><td class="cs-mono" style="color:var(--text-neutral-secondary)">{{ a.source }}</td><td style="color:var(--text-neutral-secondary)">{{ a.details }}</td></tr></sc-for></tbody>
+                </table>
+              </div></div>
+            </div>
+          </sc-if>
+
+          <!-- ================= PROJECTS ================= -->
+          <sc-if value="{{ isProjects }}" hint-placeholder-val="{{ false }}">
+            <div data-screen-label="專案" style="display:flex;flex-direction:column;gap:var(--component-margin-s)">
+              <div class="cub-page-header"><div class="cub-page-header-title"><div class="cub-page-header-heading"><h1>專案</h1><div class="cub-page-header-sub">已連接的 GCP 專案與自動修復政策</div></div></div></div>
+              <div class="cub-card"><div class="cub-card-content">
+                <table class="cub-table cub-table-small cs-table">
+                  <thead><tr><th>專案</th><th>環境</th><th>狀態</th><th class="cub-column-amount">服務數</th><th>Monitoring</th><th>Logging</th><th>Repository</th><th>自動修復</th><th class="cub-column-actions">操作</th></tr></thead>
+                  <tbody><sc-for list="{{ projectRows }}" as="p" hint-placeholder-count="5"><tr class="cs-row-link" onClick="{{ p.open }}"><td style="font:var(--font-label-s)">{{ p.name }}</td><td><span class="cub-tag cub-tag-small cub-tag-gray">{{ p.env }}</span></td><td><span class="cub-tag cub-tag-small cub-tag-green">已連接</span></td><td class="cub-column-amount cub-tabular">{{ p.services }}</td><td><span class="cub-tag cub-tag-small cub-tag-green">已連接</span></td><td><span class="cub-tag cub-tag-small cub-tag-green">已連接</span></td><td>{{ p.repo }}</td><td><span class="cub-tag cub-tag-small {{ p.policyTag }}">{{ p.policy }}</span></td><td class="cub-column-actions"><button type="button" class="cub-button-base cub-button cub-brand cub-button-text cub-button-small"><span class="cub-button-wrapper"><span class="cub-button-content">詳情</span></span></button></td></tr></sc-for></tbody>
+                </table>
+              </div></div>
+            </div>
+          </sc-if>
+
+          <!-- ================= SETTINGS ================= -->
+          <sc-if value="{{ isSettings }}" hint-placeholder-val="{{ false }}">
+            <div data-screen-label="設定" style="display:flex;flex-direction:column;gap:var(--component-margin-s)">
+              <div class="cub-page-header"><div class="cub-page-header-title"><div class="cub-page-header-heading"><h1>設定</h1><div class="cub-page-header-sub">修復政策、Agent、角色權限與通知</div></div></div></div>
+              <div class="cub-tab-group" style="position:relative"><div class="cub-tab-header"><div class="cub-tab-item-container"><div class="cub-tab-list"><div class="cub-tab-items">
+                <sc-for list="{{ settingsTabs }}" as="t" hint-placeholder-count="5"><button type="button" class="cub-tab-item {{ t.cls }}" onClick="{{ t.pick }}"><span class="cub-tab-item-content"><span class="cub-tab-item-text">{{ t.label }}</span></span></button></sc-for>
+              </div></div></div><span class="cub-ink-bar"></span></div></div>
+
+              <sc-if value="{{ stGeneral }}" hint-placeholder-val="{{ false }}">
+                <div class="cub-card"><div class="cub-card-header-content"><h3 class="cub-card-header-title">一般</h3></div><div class="cub-card-content">
+                  <table class="cub-descriptions" style="max-width:720px"><tbody><tr><th>組織</th><td>Cathay Cloud Platform</td></tr><tr><th>預設環境</th><td>All Environments</td></tr><tr><th>時區</th><td>Asia/Taipei (UTC+8)</td></tr><tr><th>幣別</th><td>NT$ (TWD)</td></tr><tr><th>資料保留</th><td>事件 365 天 · 稽核紀錄 7 年</td></tr></tbody></table>
+                </div></div>
+              </sc-if>
+              <sc-if value="{{ stPolicy }}" hint-placeholder-val="{{ true }}">
+                <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:var(--component-margin-s)">
+                  <div class="cub-card"><div class="cub-card-header-content"><h3 class="cub-card-header-title">自動修復政策</h3></div><div class="cub-card-content" style="display:flex;flex-direction:column;gap:var(--component-margin-m)">
+                    <div><div class="cub-label-container"><div class="cub-label-appended"><label class="cub-label"><span>自動修復範圍</span></label></div></div>
+                      <div class="cub-radio-group-horizontal" style="display:flex;gap:var(--component-margin-m)">
+                        <sc-for list="{{ policyOptions }}" as="o" hint-placeholder-count="3"><span class="cub-radio {{ o.cls }}" onClick="{{ o.pick }}" style="cursor:pointer"><label class="cub-radio-label"><span class="cub-radio-container"><span class="cub-radio-circle-background"><sc-if value="{{ o.checked }}" hint-placeholder-val="{{ false }}"><span class="cub-radio-circle-checked"></span></sc-if></span></span><span class="cub-radio-label-content">{{ o.label }}</span></label></span></sc-for>
+                      </div>
+                    </div>
+                    <table class="cub-descriptions cub-descriptions-small"><tbody>
+                      <tr><th>Production 預設</th><td><span class="cub-tag cub-tag-small cub-tag-orange">需人工批准</span></td></tr>
+                      <tr><th>最大重試次數</th><td>3</td></tr>
+                      <tr><th>回滾</th><td><span class="cub-tag cub-tag-small cub-tag-green">已啟用</span></td></tr>
+                      <tr><th>需人工批准</th><td><span class="cub-tag cub-tag-small cub-tag-green">已啟用</span></td></tr>
+                      <tr><th>Production 環境</th><td>預設唯讀</td></tr>
+                    </tbody></table>
+                  </div></div>
+                  <div class="cub-card"><div class="cub-card-header-content"><h3 class="cub-card-header-title">護欄</h3></div><div class="cub-card-content" style="display:flex;flex-direction:column;gap:var(--component-margin-s)">
+                    <sc-for list="{{ guardrails }}" as="g" hint-placeholder-count="4">
+                      <div style="display:flex;align-items:center;justify-content:space-between;gap:var(--component-margin-s);padding:var(--component-padding-xs) 0;border-bottom:1px solid var(--border-neutral-lighter)">
+                        <div><div style="font:var(--font-label-s)">{{ g.label }}</div><div style="font:var(--font-body-s);color:var(--text-neutral-secondary)">{{ g.desc }}</div></div>
+                        <div class="cub-switch {{ g.cls }}" onClick="{{ g.toggle }}" style="cursor:pointer"><label class="cub-switch-label"><span class="cub-switch-bar"><span class="cub-switch-thumb-container"><span class="cub-switch-thumb"></span></span></span></label></div>
+                      </div>
+                    </sc-for>
+                  </div></div>
+                </div>
+              </sc-if>
+              <sc-if value="{{ stAgents }}" hint-placeholder-val="{{ false }}">
+                <div class="cub-card"><div class="cub-card-content">
+                  <table class="cub-table cub-table-small cs-table"><thead><tr><th>Agent</th><th>職責</th><th>模型</th><th>狀態</th><th class="cub-column-amount">信心度門檻</th></tr></thead>
+                  <tbody><sc-for list="{{ agentSettings }}" as="a" hint-placeholder-count="5"><tr><td style="font:var(--font-label-s)">{{ a.name }}</td><td style="color:var(--text-neutral-secondary)">{{ a.duty }}</td><td class="cs-mono">{{ a.model }}</td><td><span class="cub-tag cub-tag-small cub-tag-green">已啟用</span></td><td class="cub-column-amount cub-tabular">{{ a.threshold }}</td></tr></sc-for></tbody></table>
+                </div></div>
+              </sc-if>
+              <sc-if value="{{ stRoles }}" hint-placeholder-val="{{ false }}">
+                <div class="cub-grid cub-grid-3">
+                  <sc-for list="{{ roles }}" as="r" hint-placeholder-count="3">
+                    <div class="cub-card"><div class="cub-card-header-content"><h3 class="cub-card-header-title">{{ r.name }}</h3><div class="cub-card-header-end"><span class="cub-tag cub-tag-small cub-tag-gray">{{ r.members }} 人</span></div></div>
+                    <div class="cub-card-content"><ul style="list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:var(--component-margin-3xs)"><sc-for list="{{ r.perms }}" as="p" hint-placeholder-count="3"><li style="display:flex;gap:var(--component-margin-2xs);font:var(--font-body-s)"><span class="cub-icon-check" style="color:var(--text-success-main);font-size:var(--icon-body-m)"></span>{{ p }}</li></sc-for></ul></div></div>
+                  </sc-for>
+                </div>
+              </sc-if>
+              <sc-if value="{{ stNotify }}" hint-placeholder-val="{{ false }}">
+                <div class="cub-card"><div class="cub-card-content">
+                  <table class="cub-table cub-table-small cs-table"><thead><tr><th>通知管道</th><th>事件</th><th>狀態</th><th class="cub-column-actions">操作</th></tr></thead>
+                  <tbody><sc-for list="{{ channels }}" as="c" hint-placeholder-count="3"><tr><td style="font:var(--font-label-s)">{{ c.name }}</td><td style="color:var(--text-neutral-secondary)">{{ c.events }}</td><td><span class="cub-tag cub-tag-small {{ c.tag }}">{{ c.status }}</span></td><td class="cub-column-actions"><button type="button" class="cub-button-base cub-button cub-brand cub-button-text cub-button-small" onClick="{{ c.act }}"><span class="cub-button-wrapper"><span class="cub-button-content">{{ c.actLabel }}</span></span></button></td></tr></sc-for></tbody></table>
+                </div></div>
+              </sc-if>
+            </div>
+          </sc-if>
+
+        </div>
+        <footer class="cub-footer"><div class="cub-footer-text">AegisOps — GCP 智慧自癒維運與成本治理平台 · Prototype</div></footer>
+      </div>
+
+      <sc-if value="{{ showActionBar }}" hint-placeholder-val="{{ false }}">
+        <div class="cub-sticky-action-bar cub-sticky-action-bar-bottom" style="justify-content:space-between;padding-left:var(--component-padding-xl);padding-right:var(--component-padding-xl)">
+          <div style="display:flex;align-items:center;gap:var(--component-margin-2xs);font:var(--font-body-s);color:var(--text-neutral-secondary)"><span class="cub-icon-lock" style="color:var(--text-warning-main)"></span><b>Production 變更需經人工批准</b><span>· 批准者：Alan（Operator）</span></div>
+          <div style="display:flex;gap:var(--component-margin-2xs)">
+            <button type="button" class="cub-button-base cub-button cub-error cub-button-filled-outline" onClick="{{ rejectFix }}"><span class="cub-button-wrapper"><span class="cub-button-content">拒絕</span></span></button>
+            <button type="button" class="cub-button-base cub-button cub-neutral cub-button-filled-outline" onClick="{{ openDiff }}"><span class="cub-button-wrapper"><span class="cub-button-content">檢視完整 Diff</span></span></button>
+            <button type="button" class="cub-button-base cub-button cub-brand cub-button-filled cub-button-with-min-width" onClick="{{ openApproval }}"><span class="cub-button-wrapper"><span class="cub-button-prefix"><span class="cub-icon-shield-check"></span></span><span class="cub-button-content">批准並執行</span></span></button>
+          </div>
+        </div>
+      </sc-if>
+    </div>
+  </div>
+
+  <!-- ================= APPROVAL DIALOG ================= -->
+  <sc-if value="{{ approvalOpen }}" hint-placeholder-val="{{ false }}">
+    <div class="cs-overlay cs-overlay-center" onClick="{{ closeApproval }}">
+      <div class="cub-dialog cub-dialog-small cub-dialog-neutral" onClick="{{ stop }}">
+        <div class="cub-dialog-container"><div class="cub-default-dialog">
+          <div class="cub-dialog-header"><div class="cub-dialog-title">批准 AI 修復方案？<span class="cub-dialog-code">(INC-1034)</span></div><div class="cub-dialog-close"><button type="button" class="cub-focus-indicator cub-button-base cub-button-icon cub-neutral-light cub-button-plain" aria-label="關閉" onClick="{{ closeApproval }}"><span class="cub-button-wrapper"><span class="cub-icon-x"></span></span></button></div></div>
+          <div class="cub-dialog-content-container">
+            <div class="cub-dialog-content" style="display:flex;flex-direction:column;gap:var(--component-margin-s)">
+              <table class="cub-descriptions cub-descriptions-small"><tbody>
+                <tr><th>專案</th><td>Project B</td></tr>
+                <tr><th>環境</th><td><span class="cub-tag cub-tag-small cub-tag-red">PROD</span></td></tr>
+                <tr><th>風險</th><td><span class="cub-tag cub-tag-small cub-tag-green">低</span></td></tr>
+                <tr><th>動作</th><td>套用原始碼修復並重新部署 payment-service</td></tr>
+                <tr><th>回滾</th><td>可用</td></tr>
+              </tbody></table>
+              <div class="cub-checkbox-base cub-checkbox {{ ackClass }}" onClick="{{ toggleAckBox }}" style="cursor:pointer"><label class="cub-checkbox-label" style="display:flex;gap:var(--component-margin-2xs);align-items:flex-start;cursor:pointer"><span class="cub-checkbox-container"><span class="cub-checkbox-frame"></span><span class="cub-checkbox-background"><span class="cub-checkbox-checkmark cub-icon-check"></span></span></span><span class="cub-checkbox-label-content">我了解此變更將修改 Production 工作負載。</span></label></div>
+            </div>
+            <div class="cub-dialog-actions">
+              <button type="button" class="cub-focus-indicator cub-button-base cub-button cub-neutral cub-button-filled-outline cub-button-with-min-width" onClick="{{ closeApproval }}"><span class="cub-button-wrapper"><span class="cub-button-content">取消</span></span></button>
+              <button type="button" class="cub-focus-indicator cub-button-base cub-button cub-brand cub-button-filled cub-button-with-min-width {{ approveDisabled }}" onClick="{{ approve }}"><span class="cub-button-wrapper"><span class="cub-button-content">批准並執行</span></span></button>
+            </div>
+          </div>
+        </div></div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ================= REJECT CONFIRM ================= -->
+  <sc-if value="{{ rejectOpen }}" hint-placeholder-val="{{ false }}">
+    <div class="cs-overlay cs-overlay-center" onClick="{{ closeReject }}">
+      <div class="cub-dialog cub-dialog-small cub-dialog-error" onClick="{{ stop }}">
+        <div class="cub-dialog-container"><div class="cub-default-dialog">
+          <div class="cub-dialog-header"><div class="cub-dialog-title">拒絕此修復方案？</div><div class="cub-dialog-close"><button type="button" class="cub-focus-indicator cub-button-base cub-button-icon cub-neutral-light cub-button-plain" aria-label="關閉" onClick="{{ closeReject }}"><span class="cub-button-wrapper"><span class="cub-icon-x"></span></span></button></div></div>
+          <div class="cub-dialog-content-container">
+            <div class="cub-dialog-content"><p style="margin:0">拒絕後事件將升級為人工處理，Mitigation Agent 不會執行任何變更。此決定將寫入稽核紀錄。</p></div>
+            <div class="cub-dialog-actions">
+              <button type="button" class="cub-focus-indicator cub-button-base cub-button cub-neutral cub-button-filled-outline cub-button-with-min-width" onClick="{{ closeReject }}"><span class="cub-button-wrapper"><span class="cub-button-content">取消</span></span></button>
+              <button type="button" class="cub-focus-indicator cub-button-base cub-button cub-error cub-button-filled cub-button-with-min-width" onClick="{{ confirmReject }}"><span class="cub-button-wrapper"><span class="cub-button-content">確認拒絕</span></span></button>
+            </div>
+          </div>
+        </div></div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ================= FULL DIFF DIALOG ================= -->
+  <sc-if value="{{ diffOpen }}" hint-placeholder-val="{{ false }}">
+    <div class="cs-overlay cs-overlay-center" onClick="{{ closeDiff }}">
+      <div class="cub-dialog cub-dialog-neutral" onClick="{{ stop }}">
+        <div class="cub-dialog-container"><div class="cub-default-dialog">
+          <div class="cub-dialog-header"><div class="cub-dialog-title">完整 Diff<span class="cub-dialog-code cs-mono">PaymentController.java</span></div><div class="cub-dialog-close"><button type="button" class="cub-focus-indicator cub-button-base cub-button-icon cub-neutral-light cub-button-plain" aria-label="關閉" onClick="{{ closeDiff }}"><span class="cub-button-wrapper"><span class="cub-icon-x"></span></span></button></div></div>
+          <div class="cub-dialog-content-container">
+            <div class="cub-dialog-content">
+              <div class="cs-mono" style="border:1px solid var(--border-neutral-lighter);border-radius:var(--radius-l);font-size:var(--font-size-1);line-height:1.8;overflow:hidden">
+                <sc-for list="{{ fullDiff }}" as="d" hint-placeholder-count="12"><div style="{{ d.style }};padding:0 var(--component-padding-s);white-space:pre">{{ d.text }}</div></sc-for>
+              </div>
+            </div>
+            <div class="cub-dialog-actions"><button type="button" class="cub-focus-indicator cub-button-base cub-button cub-neutral cub-button-filled-outline cub-button-with-min-width" onClick="{{ closeDiff }}"><span class="cub-button-wrapper"><span class="cub-button-content">關閉</span></span></button></div>
+          </div>
+        </div></div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ================= AGENT DRAWER ================= -->
+  <sc-if value="{{ agentOpen }}" hint-placeholder-val="{{ false }}">
+    <div class="cs-overlay" onClick="{{ closeAgent }}">
+      <div class="cub-drawer cub-drawer-small" onClick="{{ stop }}" style="min-width:420px">
+        <div class="cub-drawer-container"><div class="cub-default-drawer">
+          <div class="cub-drawer-header"><div class="cub-drawer-title">{{ agent.name }}<span class="cub-drawer-code">{{ agent.role }}</span></div><div class="cub-drawer-close"><button type="button" class="cub-focus-indicator cub-button-base cub-button-icon cub-neutral-light cub-button-plain" aria-label="關閉" onClick="{{ closeAgent }}"><span class="cub-button-wrapper"><span class="cub-icon-x"></span></span></button></div></div>
+          <div class="cub-drawer-content-container">
+            <div class="cub-drawer-content" style="display:flex;flex-direction:column;gap:var(--component-margin-m)">
+              <table class="cub-descriptions cub-descriptions-small"><tbody>
+                <tr><th>狀態</th><td><span class="cub-tag cub-tag-small {{ agent.tag }}">{{ agent.statusLabel }}</span></td></tr>
+                <tr><th>開始</th><td class="cub-tabular">{{ agent.started }}</td></tr>
+                <tr><th>完成</th><td class="cub-tabular">{{ agent.completed }}</td></tr>
+                <tr><th>耗時</th><td class="cub-tabular">{{ agent.durationText }}</td></tr>
+              </tbody></table>
+              <div><div style="font:var(--font-label-s);margin-bottom:var(--component-margin-3xs)">輸入</div><div style="display:flex;flex-wrap:wrap;gap:var(--component-margin-3xs)"><sc-for list="{{ agent.inputs }}" as="i" hint-placeholder-count="3"><span class="cub-tag cub-tag-small cub-tag-gray">{{ i }}</span></sc-for></div></div>
+              <div><div style="font:var(--font-label-s);margin-bottom:var(--component-margin-3xs)">分析</div><ul style="margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:var(--component-margin-3xs)"><sc-for list="{{ agent.analysis }}" as="a" hint-placeholder-count="3"><li style="display:flex;gap:var(--component-margin-2xs);font:var(--font-body-s)"><span class="cub-icon-chevron-right" style="color:var(--text-brand-main);font-size:var(--icon-body-m)"></span>{{ a }}</li></sc-for></ul></div>
+              <div><div style="font:var(--font-label-s);margin-bottom:var(--component-margin-3xs)">輸出</div>
+                <div style="padding:var(--component-padding-s);background:var(--bg-brand-light);border-radius:var(--radius-l);display:flex;flex-direction:column;gap:var(--component-margin-3xs)"><div style="font:var(--font-body-s);color:var(--text-neutral-secondary)">{{ agent.outputLabel }}</div><div style="font:var(--font-h4);color:var(--text-neutral-title)">{{ agent.output }}</div><sc-if value="{{ agent.hasConfidence }}" hint-placeholder-val="{{ false }}"><div style="font:var(--font-body-s)">信心度 <b style="color:var(--text-brand-main)">{{ agent.confidence }}</b></div></sc-if></div>
+              </div>
+            </div>
+          </div>
+        </div></div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ================= COST DRAWER ================= -->
+  <sc-if value="{{ costOpen }}" hint-placeholder-val="{{ false }}">
+    <div class="cs-overlay" onClick="{{ closeCost }}">
+      <div class="cub-drawer cub-drawer-small" onClick="{{ stop }}" style="min-width:440px">
+        <div class="cub-drawer-container"><div class="cub-default-drawer">
+          <div class="cub-drawer-header"><div class="cub-drawer-title">{{ costItem.resource }} 優化建議<span class="cub-drawer-code">{{ costItem.project }}</span></div><div class="cub-drawer-close"><button type="button" class="cub-focus-indicator cub-button-base cub-button-icon cub-neutral-light cub-button-plain" aria-label="關閉" onClick="{{ closeCost }}"><span class="cub-button-wrapper"><span class="cub-icon-x"></span></span></button></div></div>
+          <div class="cub-drawer-content-container">
+            <div class="cub-drawer-content" style="display:flex;flex-direction:column;gap:var(--component-margin-m)">
+              <div class="cub-grid cub-grid-2">
+                <div style="padding:var(--component-padding-s);border:1px solid var(--border-neutral-lighter);border-radius:var(--radius-l)"><div style="font:var(--font-body-s);color:var(--text-neutral-secondary)">目前</div><div class="cs-mono" style="font:var(--font-label-m)">{{ costItem.spec }}</div><div class="cub-tabular" style="color:var(--text-neutral-secondary)">{{ costItem.currentCost }} / 月</div></div>
+                <div style="padding:var(--component-padding-s);border:1px solid var(--border-brand-main);background:var(--bg-brand-lighter);border-radius:var(--radius-l)"><div style="font:var(--font-body-s);color:var(--text-brand-main)">AI 建議</div><div class="cs-mono" style="font:var(--font-label-m)">{{ costItem.rec }}</div><div class="cub-tabular" style="color:var(--text-neutral-secondary)">{{ costItem.recCost }} / 月</div></div>
+              </div>
+              <table class="cub-descriptions cub-descriptions-small"><tbody>
+                <tr><th>歷史 CPU P95</th><td class="cub-tabular">{{ costItem.p95 }}</td></tr>
+                <tr><th>平均 CPU</th><td class="cub-tabular">{{ costItem.avg }}</td></tr>
+                <tr><th>預估節省</th><td><b class="cub-tabular" style="color:var(--text-success-main)">{{ costItem.saving }} / 月</b> · {{ costItem.yearly }} / 年</td></tr>
+                <tr><th>風險</th><td><span class="cub-tag cub-tag-small cub-tag-green">低</span></td></tr>
+              </tbody></table>
+              <div><div style="font:var(--font-label-s);margin-bottom:var(--component-margin-3xs);display:flex;align-items:center;gap:var(--component-margin-3xs)"><span class="cub-icon-microchip-ai" style="color:var(--text-brand-main)"></span>AI 推論</div><ul style="margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:var(--component-margin-3xs)"><sc-for list="{{ costItem.reasons }}" as="r" hint-placeholder-count="3"><li style="display:flex;gap:var(--component-margin-2xs);font:var(--font-body-s)"><span class="cub-icon-check-circle-filled" style="color:var(--text-success-main);font-size:var(--icon-body-m)"></span>{{ r }}</li></sc-for></ul></div>
+            </div>
+            <div class="cub-drawer-actions">
+              <button type="button" class="cub-focus-indicator cub-button-base cub-button cub-neutral cub-button-filled-outline cub-button-with-min-width" onClick="{{ dismissCost }}"><span class="cub-button-wrapper"><span class="cub-button-content">忽略</span></span></button>
+              <button type="button" class="cub-focus-indicator cub-button-base cub-button cub-brand cub-button-filled cub-button-with-min-width {{ costApplyDisabled }}" onClick="{{ applyCost }}"><span class="cub-button-wrapper"><span class="cub-button-content">{{ costApplyLabel }}</span></span></button>
+            </div>
+          </div>
+        </div></div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ================= PROJECT DRAWER ================= -->
+  <sc-if value="{{ projectOpen }}" hint-placeholder-val="{{ false }}">
+    <div class="cs-overlay" onClick="{{ closeProject }}">
+      <div class="cub-drawer cub-drawer-small" onClick="{{ stop }}" style="min-width:420px">
+        <div class="cub-drawer-container"><div class="cub-default-drawer">
+          <div class="cub-drawer-header"><div class="cub-drawer-title">{{ proj.name }}<span class="cub-drawer-code cs-mono">{{ proj.id }}</span></div><div class="cub-drawer-close"><button type="button" class="cub-focus-indicator cub-button-base cub-button-icon cub-neutral-light cub-button-plain" aria-label="關閉" onClick="{{ closeProject }}"><span class="cub-button-wrapper"><span class="cub-icon-x"></span></span></button></div></div>
+          <div class="cub-drawer-content-container">
+            <div class="cub-drawer-content">
+              <table class="cub-descriptions cub-descriptions-small"><tbody>
+                <tr><th>專案 ID</th><td class="cs-mono">{{ proj.id }}</td></tr>
+                <tr><th>環境</th><td><span class="cub-tag cub-tag-small cub-tag-gray">{{ proj.env }}</span></td></tr>
+                <tr><th>GCP 區域</th><td class="cs-mono">{{ proj.region }}</td></tr>
+                <tr><th>服務帳戶</th><td class="cs-mono" style="word-break:break-all">{{ proj.sa }}</td></tr>
+                <tr><th>Monitoring</th><td><span class="cub-tag cub-tag-small cub-tag-green">已連接</span></td></tr>
+                <tr><th>Logging</th><td><span class="cub-tag cub-tag-small cub-tag-green">已連接</span></td></tr>
+                <tr><th>Repository</th><td>{{ proj.repo }}</td></tr>
+                <tr><th>自動修復政策</th><td><span class="cub-tag cub-tag-small {{ proj.policyTag }}">{{ proj.policy }}</span></td></tr>
+                <tr><th>最大重試</th><td>3</td></tr>
+                <tr><th>人工批准</th><td>{{ proj.approval }}</td></tr>
+                <tr><th>負責人</th><td>{{ proj.owner }}</td></tr>
+              </tbody></table>
+            </div>
+          </div>
+        </div></div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ================= POST-MORTEM DRAWER ================= -->
+  <sc-if value="{{ reportOpen }}" hint-placeholder-val="{{ false }}">
+    <div class="cs-overlay" onClick="{{ closeReport }}">
+      <div class="cub-drawer" onClick="{{ stop }}" style="min-width:520px;max-width:720px">
+        <div class="cub-drawer-container"><div class="cub-default-drawer">
+          <div class="cub-drawer-header"><div class="cub-drawer-title">事件報告<span class="cub-drawer-code cs-mono">#{{ report.id }}</span></div><div class="cub-drawer-close"><button type="button" class="cub-focus-indicator cub-button-base cub-button-icon cub-neutral-light cub-button-plain" aria-label="關閉" onClick="{{ closeReport }}"><span class="cub-button-wrapper"><span class="cub-icon-x"></span></span></button></div></div>
+          <div class="cub-drawer-content-container">
+            <div class="cub-drawer-content" style="display:flex;flex-direction:column;gap:var(--component-margin-m)">
+              <div style="display:flex;flex-wrap:wrap;gap:var(--component-margin-2xs);font:var(--font-body-s);color:var(--text-neutral-secondary)"><span>{{ report.project }}</span><span>·</span><span>{{ report.rootCause }}</span><span>·</span><span class="cub-tag cub-tag-small {{ report.tag }}">{{ report.result }}</span><span>·</span><span>Post-Mortem Agent 產生</span></div>
+              <div class="cub-tab-group cub-tab-small" style="position:relative"><div class="cub-tab-header"><div class="cub-tab-item-container"><div class="cub-tab-list"><div class="cub-tab-items">
+                <sc-for list="{{ reportTabs }}" as="t" hint-placeholder-count="4"><button type="button" class="cub-tab-item {{ t.cls }}" onClick="{{ t.pick }}"><span class="cub-tab-item-content"><span class="cub-tab-item-text">{{ t.label }}</span></span></button></sc-for>
+              </div></div></div><span class="cub-ink-bar"></span></div></div>
+              <sc-if value="{{ rtTimeline }}" hint-placeholder-val="{{ true }}">
+                <div class="cub-timeline cub-brand">
+                  <sc-for list="{{ report.timeline }}" as="t" hint-placeholder-count="7"><div class="cub-timeline-step cub-active"><div class="cub-timeline-connector-container"><div class="cub-timeline-marker"></div><div class="cub-timeline-connector"></div></div><div class="cub-timeline-content"><div style="display:flex;gap:var(--component-margin-2xs);align-items:baseline"><span class="cub-tabular" style="font:var(--font-body-s);color:var(--text-neutral-third)">{{ t.time }}</span><span>{{ t.text }}</span></div></div></div></sc-for>
+                </div>
+              </sc-if>
+              <sc-if value="{{ rtRoot }}" hint-placeholder-val="{{ false }}"><p style="margin:0">{{ report.root }}</p></sc-if>
+              <sc-if value="{{ rtResolution }}" hint-placeholder-val="{{ false }}"><p style="margin:0">{{ report.resolution }}</p></sc-if>
+              <sc-if value="{{ rtPrevent }}" hint-placeholder-val="{{ false }}"><ul style="margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:var(--component-margin-2xs)"><sc-for list="{{ report.prevent }}" as="p" hint-placeholder-count="3"><li style="display:flex;gap:var(--component-margin-2xs)"><span class="cub-icon-shield-plus" style="color:var(--text-brand-main)"></span>{{ p }}</li></sc-for></ul></sc-if>
+            </div>
+            <div class="cub-drawer-actions">
+              <button type="button" class="cub-focus-indicator cub-button-base cub-button cub-neutral cub-button-filled-outline cub-button-with-min-width" onClick="{{ closeReport }}"><span class="cub-button-wrapper"><span class="cub-button-content">關閉</span></span></button>
+              <button type="button" class="cub-focus-indicator cub-button-base cub-button cub-brand cub-button-filled cub-button-with-min-width" onClick="{{ downloadReport }}"><span class="cub-button-wrapper"><span class="cub-button-prefix"><span class="cub-icon-file-pdf"></span></span><span class="cub-button-content">下載 PDF</span></span></button>
+            </div>
+          </div>
+        </div></div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ================= TOAST ================= -->
+  <sc-if value="{{ toastVisible }}" hint-placeholder-val="{{ false }}">
+    <div class="cub-toast cub-toast-bottom-right" style="position:fixed;right:var(--viewport-offset-desktop, 24px);bottom:24px;z-index:2400">
+      <div class="cub-toast-item {{ toast.cls }}"><span class="cub-toast-item-icon {{ toast.icon }}"></span><div class="cub-toast-item-content"><div class="cub-toast-item-text"><div class="cub-toast-item-title">{{ toast.title }}</div><div class="cub-toast-item-message">{{ toast.msg }}</div></div></div></div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;demoSpeed&quot;: {&quot;editor&quot;: &quot;enum&quot;, &quot;default&quot;: &quot;normal&quot;, &quot;options&quot;: [&quot;fast&quot;, &quot;normal&quot;, &quot;slow&quot;], &quot;tsType&quot;: &quot;'fast'|'normal'|'slow'&quot;, &quot;section&quot;: &quot;Demo&quot;}, &quot;sidebarCollapsed&quot;: {&quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: false, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Layout&quot;}}">
+class Component extends DCLogic {
+  state = {
+    route: 'overview', collapsed: false, loading: false,
+    openSel: null, env: 'All Environments', proj: 'All Projects', time: '過去 24 小時',
+    incTab: 'all', sev: '全部嚴重度', search: '',
+    detailTab: 'overview', metric: 'error', acked: false,
+    exec: 'idle', execStep: -1, execLog: [], approvedAt: '', ackBox: false,
+    approvalOpen: false, rejectOpen: false, diffOpen: false, rejected: false,
+    agentId: null, costId: null, projectId: null, reportId: null, reportTab: 'timeline',
+    costTab: 'opps', applied: {}, dismissed: {}, resFilter: '全部結果',
+    settingsTab: 'policy', policy: 'UAT Only', guards: { rollback: true, approval: true, canary: true, budget: false },
+    toast: null, teamsConnected: false
+  };
+  componentDidMount() { document.documentElement.setAttribute('data-theme', 'tech-blue'); if (this.props.sidebarCollapsed) this.setState({ collapsed: true }); }
+  componentDidUpdate(prev) { if (prev.sidebarCollapsed !== this.props.sidebarCollapsed) this.setState({ collapsed: !!this.props.sidebarCollapsed }); }
+  componentWillUnmount() { clearInterval(this.timer); clearTimeout(this.toastTimer); }
+  go(route, extra) {
+    this.setState({ route, loading: true, openSel: null, ...(extra || {}) });
+    clearTimeout(this.loadTimer);
+    this.loadTimer = setTimeout(() => this.setState({ loading: false }), 350);
+  }
+  toast(title, msg, kind) {
+    const map = { success: ['cub-toast-item-success', 'cub-icon-check-circle-filled'], error: ['cub-toast-item-error', 'cub-icon-x-circle-filled'], neutral: ['cub-toast-item-neutral', 'cub-icon-info-circle-filled'] };
+    const [cls, icon] = map[kind || 'success'];
+    this.setState({ toast: { title, msg, cls, icon } });
+    clearTimeout(this.toastTimer);
+    this.toastTimer = setTimeout(() => this.setState({ toast: null }), 3200);
+  }
+  startExecution() {
+    const now = new Date(); const hh = String(now.getHours()).padStart(2, '0'), mm = String(now.getMinutes()).padStart(2, '0');
+    this.setState({ exec: 'running', execStep: 0, execLog: ['[' + hh + ':' + mm + '] Alan 批准修復方案 INC-1034'], approvedAt: hh + ':' + mm, approvalOpen: false });
+    const msgs = ['Telemetry Agent: 驗證目前指標 — error_rate=18.2%', 'Diagnostic Agent: 根因確認 (connection pool leak, 92%)', 'Mitigation Agent: 產生修補 PaymentController.java (+4 −2)', 'Cloud Build: 單元測試 12/12 通過', 'Cloud Run: 部署 payment-service rev-00047 … 流量切換 100%', 'Telemetry Agent: 復原監控中 — error_rate 18.2% → 3.1% → 0.4%', 'Post-Mortem Agent: 報告已產生，稽核紀錄已寫入'];
+    clearInterval(this.timer);
+    this.timer = setInterval(() => {
+      const next = this.state.execStep + 1;
+      const log = this.state.execLog.concat([msgs[Math.min(next - 1, msgs.length - 1)]]);
+      if (next >= 7) { clearInterval(this.timer); this.setState({ execStep: 7, execLog: log }); setTimeout(() => { this.setState({ exec: 'done' }); this.toast('事件已解決', 'INC-1034 修復完成，錯誤率 0.4%'); }, 900); }
+      else this.setState({ execStep: next, execLog: log });
+    }, { fast: 600, normal: 1500, slow: 2600 }[this.props.demoSpeed || 'normal'] || 1500);
+  }
+  renderVals() {
+    const s = this.state, S = (p) => this.setState(p);
+    const resolved = s.exec === 'done';
+    const stop = (e) => e && e.stopPropagation && e.stopPropagation();
+    const nav = (r) => () => this.go(r);
+    const openMainIncident = () => this.go('incident', { detailTab: 'overview' });
+
+    // --- header selects
+    const mkSel = (key, list, cur, field) => ({
+      open: s.openSel === key, openCls: s.openSel === key ? 'cub-select-expanded' : '',
+      toggle: (e) => { stop(e); S({ openSel: s.openSel === key ? null : key }); },
+      options: list.map(l => ({ label: l, cls: l === cur ? 'cub-selected' : '', pick: (e) => { stop(e); S({ [field]: l, openSel: null }); } }))
+    });
+    const envS = mkSel('env', ['All Environments', 'PROD', 'UAT', 'DEV'], s.env, 'env');
+    const projS = mkSel('proj', ['All Projects', 'Project A', 'Project B', 'Project C', 'Project D', 'Project E'], s.proj, 'proj');
+    const timeS = mkSel('time', ['過去 1 小時', '過去 24 小時', '過去 7 天', '過去 30 天'], s.time, 'time');
+    const sevS = mkSel('sev', ['全部嚴重度', '嚴重', '警告', '資訊'], s.sev, 'sev');
+    const resS = mkSel('res', ['全部結果', '已修復', '已完成', '失敗'], s.resFilter, 'resFilter');
+
+    // --- data
+    const projects = [
+      { id: 'aegis-proj-a-prod', name: 'Project A', env: 'PROD', health: '健康', cpu: '52%', mem: '61%', cost: 'NT$23K', incidents: 1, services: 6, repo: 'GitHub 已連接', policy: '需人工批准', region: 'asia-east1', owner: 'Benson', approval: '需要' },
+      { id: 'aegis-proj-b-prod', name: 'Project B', env: 'PROD', health: '嚴重', cpu: '96%', mem: '88%', cost: 'NT$41K', incidents: 2, services: 8, repo: 'GitHub 已連接', policy: '需人工批准', region: 'asia-east1', owner: 'Alan', approval: '需要' },
+      { id: 'aegis-proj-c-uat', name: 'Project C', env: 'UAT', health: '警告', cpu: '18%', mem: '23%', cost: 'NT$37K', incidents: 1, services: 5, repo: 'GitHub 已連接', policy: '自動修復', region: 'asia-east1', owner: 'Benson', approval: '不需要' },
+      { id: 'aegis-proj-d-dev', name: 'Project D', env: 'DEV', health: '健康', cpu: '44%', mem: '37%', cost: 'NT$18K', incidents: 0, services: 4, repo: 'GitHub 已連接', policy: '自動修復', region: 'asia-southeast1', owner: 'Cindy', approval: '不需要' },
+      { id: 'aegis-proj-e-prod', name: 'Project E', env: 'PROD', health: '健康', cpu: '32%', mem: '29%', cost: 'NT$11K', incidents: 0, services: 3, repo: '未連接', policy: '關閉', region: 'asia-east2', owner: 'Cindy', approval: '需要' }
+    ];
+    const healthTag = { '健康': 'cub-tag-green', '警告': 'cub-tag-orange', '嚴重': 'cub-tag-red' };
+    const policyTag = { '需人工批准': 'cub-tag-orange', '自動修復': 'cub-tag-green', '關閉': 'cub-tag-gray' };
+    const envMatch = (p) => s.env === 'All Environments' || p.env === s.env;
+    const projMatch = (p) => s.proj === 'All Projects' || p.name === s.proj;
+    const openProject = (p) => (e) => { stop(e); S({ projectId: p.id }); };
+    const projectHealth = projects.filter(p => envMatch(p) && projMatch(p)).map(p => ({ ...p, healthTag: healthTag[p.health], open: openProject(p) }));
+    const projectRows = projects.filter(p => envMatch(p) && projMatch(p)).map(p => ({ ...p, policyTag: policyTag[p.policy], open: openProject(p) }));
+
+    const sevLabel = { CRITICAL: '嚴重', WARNING: '警告', INFO: '資訊' }, sevTag = { CRITICAL: 'cub-tag-red', WARNING: 'cub-tag-orange', INFO: 'cub-tag-blue' };
+    const statusLabel = { DETECTED: '已偵測', INVESTIGATING: '調查中', ROOT_CAUSE_FOUND: '已找到根因', WAITING_APPROVAL: '待批准', FIXING: '修復中', MONITORING: '監控中', RESOLVED: '已解決', ESCALATED: '已升級', OPTIMIZATION: '優化建議', FAILED: 'Agent 失敗' };
+    const statusTag = { DETECTED: 'cub-tag-gray', INVESTIGATING: 'cub-tag-blue', ROOT_CAUSE_FOUND: 'cub-tag-blue', WAITING_APPROVAL: 'cub-tag-orange', FIXING: 'cub-tag-blue', MONITORING: 'cub-tag-blue', RESOLVED: 'cub-tag-green', ESCALATED: 'cub-tag-red', OPTIMIZATION: 'cub-tag-purple', FAILED: 'cub-tag-red' };
+    const mainStatus = resolved ? 'RESOLVED' : s.rejected ? 'ESCALATED' : s.exec === 'running' ? 'FIXING' : 'WAITING_APPROVAL';
+    const incidents = [
+      { id: 'INC-1034', sev: 'CRITICAL', title: 'Payment API — 高錯誤率', project: 'Project B', env: 'PROD', service: 'payment-service', rootCause: '記憶體洩漏（連線池）', confidence: '92%', status: mainStatus, started: '3 分鐘前', duration: resolved ? '2m 41s' : '6m', startedAt: '10:41', rootCauseTitle: '記憶體洩漏 — 連線池未釋放', rootCauseFile: 'PaymentController.java · line 42', evidence: ['錯誤日誌重複出現 427 次', 'Heap 使用量上升 43%', '程式碼樣式符合已知問題', '先前事件 INC-102 具相同模式'], fix: '調整連線池處理方式並關閉未使用的資料庫連線。' },
+      { id: 'INC-1035', sev: 'CRITICAL', title: 'Checkout — 5xx 突增', project: 'Project B', env: 'PROD', service: 'checkout-api', rootCause: '下游 payment-service 逾時', confidence: '85%', status: 'INVESTIGATING', started: '2 分鐘前', duration: '4m', startedAt: '10:43', rootCauseTitle: '下游依賴逾時', rootCauseFile: 'checkout-api → payment-service', evidence: ['5xx 由 0.2% 升至 6.4%', '99% 錯誤來自 payment-service 呼叫', '與 INC-1034 時間高度重疊'], fix: '待 INC-1034 修復後重新驗證，暫不採取獨立動作。' },
+      { id: 'INC-1033', sev: 'WARNING', title: 'VM 低 CPU 使用率', project: 'Project C', env: 'UAT', service: 'vm-02', rootCause: 'VM 規格過大', confidence: '96%', status: 'OPTIMIZATION', started: '1 小時前', duration: '—', startedAt: '09:40', rootCauseTitle: 'VM 規格過大', rootCauseFile: 'n2-standard-16 · CPU 平均 11%', evidence: ['30 天內 95% 時間 CPU < 30%', '記憶體使用率 < 40%', '無擴展事件'], fix: '調整為 n2-standard-4，預估每月節省 NT$31,000。' },
+      { id: 'INC-1032', sev: 'WARNING', title: '資料庫逾時', project: 'Project A', env: 'PROD', service: 'order-api', rootCause: '連線池問題', confidence: '88%', status: 'INVESTIGATING', started: '2 小時前', duration: '15m', startedAt: '08:41', rootCauseTitle: '資料庫連線池耗盡', rootCauseFile: 'OrderRepository.java · line 118', evidence: ['連線等待時間 > 5s 共 212 次', 'Cloud SQL 連線數達上限 100'], fix: '提高連線池上限並加入連線逾時回收。' },
+      { id: 'INC-1031', sev: 'WARNING', title: 'Cache 命中率下降', project: 'Project E', env: 'PROD', service: 'catalog-cache', rootCause: '分析失敗', confidence: '—', status: 'FAILED', started: '3 小時前', duration: '—', startedAt: '07:50', rootCauseTitle: '尚未取得根因', rootCauseFile: 'Diagnostic Agent 分析失敗', evidence: ['Cloud Logging 讀取權限不足', '重試 3 次皆失敗'], fix: '修正服務帳戶權限後重新分析。', agentFailed: true },
+      { id: 'INC-1030', sev: 'INFO', title: '高記憶體使用', project: 'Project D', env: 'DEV', service: 'cache-service', rootCause: '快取未釋放', confidence: '91%', status: 'RESOLVED', started: '5 小時前', duration: '8m', startedAt: '05:41', rootCauseTitle: '快取項目未釋放', rootCauseFile: 'CacheManager.java · line 77', evidence: ['記憶體隨時間線性增長', 'TTL 設定為 0'], fix: '設定 TTL 為 600 秒並啟用 LRU 淘汰。' }
+    ];
+    const openIncident = (i) => (e) => { stop(e); this.go('incident', { detailTab: 'overview', mainIncidentId: i.id }); };
+    const activeStatuses = ['DETECTED', 'INVESTIGATING', 'ROOT_CAUSE_FOUND', 'WAITING_APPROVAL', 'FIXING', 'MONITORING', 'ESCALATED', 'FAILED'];
+    const tabDefs = [['all', '全部', () => true], ['open', '進行中', i => activeStatuses.includes(i.status)], ['investigating', '調查中', i => ['INVESTIGATING', 'ROOT_CAUSE_FOUND', 'FAILED'].includes(i.status)], ['waiting', '待批准', i => i.status === 'WAITING_APPROVAL'], ['resolved', '已解決', i => ['RESOLVED', 'OPTIMIZATION'].includes(i.status)]];
+    const incidentTabs = tabDefs.map(([k, label, fn]) => ({ label, count: incidents.filter(fn).length, cls: s.incTab === k ? 'cub-tab-item-active' : '', pick: () => S({ incTab: k }) }));
+    const tabFn = tabDefs.find(t => t[0] === s.incTab)[2];
+    const q = s.search.trim().toLowerCase();
+    const filteredIncidents = incidents.filter(i => tabFn(i) && (s.sev === '全部嚴重度' || sevLabel[i.sev] === s.sev) && (s.env === 'All Environments' || i.env === s.env) && (s.proj === 'All Projects' || i.project === s.proj) && (!q || (i.title + i.id + i.service + i.rootCause).toLowerCase().includes(q)))
+      .map(i => ({ ...i, sevLabel: sevLabel[i.sev], sevTag: sevTag[i.sev], statusLabel: statusLabel[i.status], statusTag: statusTag[i.status], open: openIncident(i) }));
+    const activeCount = incidents.filter(i => activeStatuses.includes(i.status)).length;
+    const criticalCount = incidents.filter(i => i.sev === 'CRITICAL' && activeStatuses.includes(i.status)).length;
+
+    const incRaw = incidents.find(i => i.id === (s.mainIncidentId || 'INC-1034')) || incidents[0];
+    const isMain = incRaw.id === 'INC-1034';
+    const inc = { ...incRaw, pageTitle: incRaw.title, sevLabel: sevLabel[incRaw.sev], sevTag: sevTag[incRaw.sev], statusLabel: statusLabel[incRaw.status], statusTag: statusTag[incRaw.status], resolved: isMain && resolved, agentFailed: !!incRaw.agentFailed };
+
+    // --- agents
+    const done = resolved, running = s.exec === 'running';
+    const agentStatus = { telemetry: 'COMPLETED', diagnostic: 'COMPLETED', mitigation: 'COMPLETED', approval: done || running ? 'COMPLETED' : s.rejected ? 'FAILED' : 'WAITING', postmortem: done ? 'COMPLETED' : running ? 'RUNNING' : 'WAITING', cost: 'COMPLETED' };
+    const aLabel = { COMPLETED: '已完成', RUNNING: '執行中', WAITING: '等待中', FAILED: '失敗', IDLE: '閒置' };
+    const aTag = { COMPLETED: 'cub-tag-green', RUNNING: 'cub-tag-blue', WAITING: 'cub-tag-orange', FAILED: 'cub-tag-red', IDLE: 'cub-tag-gray' };
+    const aCls = { COMPLETED: 'cub-step-header-completed', RUNNING: 'cub-active cub-selected', WAITING: '', FAILED: 'cub-step-header-error', IDLE: 'cub-disabled' };
+    const aIcon = { COMPLETED: 'cub-icon-check', RUNNING: 'cub-icon-arrows-rotate cs-spin', WAITING: 'cub-icon-clock', FAILED: 'cub-icon-x', IDLE: 'cub-icon-minus' };
+    const agents = [
+      { key: 'telemetry', name: 'Telemetry Agent', role: '偵測', started: '10:41:02', completed: '10:41:20', durationText: '18s', inputs: ['Cloud Monitoring', 'Cloud Logging', 'Resource Usage'], analysis: ['CPU 由 52% 升至 97%（5 分鐘內）', '錯誤率由 4% 升至 18.2%', 'P95 延遲 2.8s，超過 SLO 800ms'], outputLabel: '偵測結果', output: 'Project B / payment-service 異常', hasConfidence: false },
+      { key: 'diagnostic', name: 'Diagnostic Agent', role: '根因分析', started: '10:42:01', completed: '10:43:12', durationText: '1m 11s', inputs: ['Cloud Monitoring', 'Cloud Logging', 'Source Code', 'Historical Incidents'], analysis: ['偵測到 427 筆相似例外', 'Heap 使用量上升 43%', '程式碼樣式符合先前事件 INC-102'], outputLabel: '根因', output: '連線池洩漏（Connection Pool Leak）', hasConfidence: true, confidence: '92%' },
+      { key: 'mitigation', name: 'Mitigation Agent', role: '修復方案', started: '10:43:15', completed: '10:44:02', durationText: '47s', inputs: ['Root Cause', 'Source Code', 'Deployment Config'], analysis: ['產生 try-with-resources 修補', '單元測試 12/12 通過', '評估風險：低；停機：0 分鐘；回滾：可用'], outputLabel: '修復方案', output: '套用連線池修復並重新部署', hasConfidence: true, confidence: '89%' },
+      { key: 'approval', name: '人工批准', role: 'Human-in-the-Loop', started: '10:44:05', completed: done || running ? s.approvedAt : '—', durationText: done || running ? '—' : '等待中', inputs: ['Remediation Proposal', 'Risk Assessment'], analysis: ['Production 變更需 Operator 以上角色批准', '批准紀錄將寫入稽核紀錄'], outputLabel: '批准狀態', output: done || running ? 'Alan 已批准' : s.rejected ? 'Alan 已拒絕' : '等待 Alan 批准', hasConfidence: false },
+      { key: 'postmortem', name: 'Post-Mortem Agent', role: '報告', started: done || running ? s.approvedAt : '—', completed: done ? '—' : '—', durationText: done ? '38s' : '—', inputs: ['Execution History', 'Audit Trail', 'Root Cause Report'], analysis: ['彙整事件時間線', '產生預防措施建議'], outputLabel: '報告', output: done ? '事件報告 #INC-1034 已產生' : '等待修復完成', hasConfidence: false },
+      { key: 'cost', name: 'Cost Sentinel', role: '成本影響（平行）', started: '10:43:20', completed: '10:43:41', durationText: '21s', inputs: ['Billing Export', 'Resource Config', 'Remediation Proposal'], analysis: ['修復後 Cloud Run 執行個體重啟一次', '無規格變更、無新增資源'], outputLabel: '預估成本影響', output: '+NT$350 / 月（無顯著影響）', hasConfidence: false }
+    ].map(a => ({ ...a, status: agentStatus[a.key], statusLabel: aLabel[agentStatus[a.key]], tag: aTag[agentStatus[a.key]], open: (e) => { stop(e); S({ agentId: a.key }); } }));
+    const pipe = (keys, short) => keys.map((k, idx) => { const a = agents.find(x => x.key === k); return { name: short ? a.name.replace(' Agent', '') : a.name, statusLabel: a.statusLabel, cls: aCls[a.status], icon: aIcon[a.status], open: a.open, lineStyle: idx === 0 ? 'display:none' : '' }; });
+    const pipeline = pipe(['telemetry', 'diagnostic', 'mitigation', 'approval', 'postmortem'], true);
+    const pipelineFull = pipe(['telemetry', 'diagnostic', 'mitigation', 'approval', 'postmortem'], false);
+    const agent = agents.find(a => a.key === s.agentId) || agents[0];
+
+    // --- telemetry
+    const metrics = { cpu: { label: 'CPU', title: 'CPU 使用率', range: '52% → 97%', color: 'var(--text-warning-main)', points: '0,100 60,98 120,102 180,99 240,101 300,97 360,95 390,80 420,40 480,22 540,18 600,15' }, memory: { label: '記憶體', title: '記憶體使用率', range: '58% → 83%', color: 'var(--text-brand-main)', points: '0,95 60,94 120,92 180,90 240,88 300,86 360,82 390,74 420,60 480,48 540,40 600,36' }, error: { label: '錯誤率', title: '錯誤率', range: '4% → 18.2%', color: 'var(--text-error-main)', points: '0,132 60,130 120,133 180,131 240,132 300,130 360,128 390,110 420,60 480,32 540,26 600,22' }, latency: { label: '延遲', title: 'P95 延遲', range: '420ms → 2.8s', color: 'var(--text-warning-main)', points: '0,125 60,124 120,126 180,123 240,125 300,122 360,120 390,100 420,58 480,34 540,30 600,28' } };
+    const metricOptions = Object.keys(metrics).map(k => ({ label: metrics[k].label, cls: s.metric === k ? 'cub-active' : '', pick: () => S({ metric: k }) }));
+    const m = metrics[s.metric];
+    const telemetryStats = [{ label: '錯誤率', value: resolved ? '0.4%' : '18.2%', style: resolved ? 'color:var(--text-success-main)' : 'color:var(--text-error-main)' }, { label: 'CPU', value: resolved ? '61%' : '97%', style: '' }, { label: '記憶體', value: resolved ? '54%' : '83%', style: '' }, { label: '延遲', value: resolved ? '380 ms' : '2.8 s', style: '' }];
+    const detailTabs = [['overview', '總覽'], ['logs', '日誌分析'], ['code', '程式碼分析'], ['agents', 'Agent 詳情']].map(([k, label]) => ({ label, cls: s.detailTab === k ? 'cub-tab-item-active' : '', pick: () => S({ detailTab: k }) }));
+    const logs = [
+      { level: 'ERROR', ts: '2026-09-08 10:41:23', msg: 'Connection pool exhausted — payment-service (pool=100, active=100, idle=0)', style: 'color:var(--text-error-light)' },
+      { level: 'ERROR', ts: '2026-09-08 10:41:24', msg: 'Unable to acquire database connection within 5000ms', style: 'color:var(--text-error-light)' },
+      { level: 'WARN', ts: '2026-09-08 10:41:25', msg: 'Heap usage 83% (threshold 75%) — GC pause 412ms', style: 'color:var(--text-warning-light)' },
+      { level: 'ERROR', ts: '2026-09-08 10:41:27', msg: 'Request timeout — POST /v1/payments (trace=4f2a…9c)', style: 'color:var(--text-error-light)' },
+      { level: 'ERROR', ts: '2026-09-08 10:41:31', msg: 'Connection pool exhausted — payment-service (×427 in 6m)', style: 'color:var(--text-error-light)' },
+      { level: 'INFO', ts: '2026-09-08 10:41:32', msg: 'Cloud Run autoscaler: instances 4 → 8', style: 'color:var(--text-brand-light)' }
+    ];
+    const agentRows = agents.map(a => ({ ...a, summary: a.output }));
+
+    // --- execution
+    const stepNames = [['Telemetry 驗證', '確認目前指標與異常仍存在'], ['Diagnostic 確認', '再次驗證根因與信心度'], ['產生修復', '套用程式碼修補'], ['單元測試', 'PaymentControllerTest 12 項'], ['部署', 'Cloud Run 漸進式切換流量'], ['復原監控', '觀察錯誤率與延遲 60 秒'], ['Post-Mortem', '產生報告並寫入稽核紀錄']];
+    const execSteps = stepNames.map(([name, desc], idx) => { const st = idx < s.execStep ? 'COMPLETED' : idx === s.execStep ? 'RUNNING' : 'WAITING'; return { name, desc: st === 'COMPLETED' ? '已完成' : st === 'RUNNING' ? desc : '等待中', cls: aCls[st], icon: st === 'WAITING' ? '' : aIcon[st], numText: st === 'WAITING' ? String(idx + 1) : '' }; });
+    const liveVals = [['18.2%', '97%'], ['18.2%', '97%'], ['18.2%', '96%'], ['17.9%', '95%'], ['16.4%', '91%'], ['3.1%', '72%'], ['0.4%', '61%'], ['0.4%', '58%']];
+    const lv = liveVals[Math.max(0, Math.min(s.execStep, 7))];
+    const fullDiff = [
+      ['@@ -38,12 +38,14 @@ public class PaymentController {', 'color:var(--text-neutral-third)'],
+      ['   @PostMapping("/v1/payments")', ''], ['   public PaymentResponse process(PaymentRequest req) {', ''],
+      ['-    Connection connection = dataSource.getConnection();', 'background:var(--bg-error-light)'], ['-    connection.open();', 'background:var(--bg-error-light)'], ['-    processPayment(connection, req);', 'background:var(--bg-error-light)'],
+      ['+    try (Connection connection = pool.getConnection()) {', 'background:var(--bg-success-light)'], ['+      // process request', 'background:var(--bg-success-light)'], ['+      processPayment(connection, req);', 'background:var(--bg-success-light)'], ['+    } catch (SQLException e) {', 'background:var(--bg-success-light)'], ['+      throw new PaymentException("DB unavailable", e);', 'background:var(--bg-success-light)'], ['+    }', 'background:var(--bg-success-light)'],
+      ['     return PaymentResponse.ok();', ''], ['   }', '']
+    ].map(([text, style]) => ({ text, style }));
+
+    // --- cost
+    const costs = [
+      { id: 'vm01', resource: 'VM-01', type: 'Compute Engine', project: 'Project B', spec: 'n2-standard-8', usage: 'CPU 18%', rec: 'n2-standard-4', saving: 'NT$12,000', currentCost: 'NT$24,000', recCost: 'NT$12,000', p95: '31%', avg: '18%', yearly: 'NT$144,000', reasons: ['30 天內 CPU 使用率 95% 時間低於 35%', '記憶體使用率低於 45%', '無擴展事件'] },
+      { id: 'vm02', resource: 'VM-02', type: 'Compute Engine', project: 'Project C', spec: 'n2-standard-16', usage: 'CPU 11%', rec: 'n2-standard-4', saving: 'NT$31,000', currentCost: 'NT$48,000', recCost: 'NT$17,000', p95: '26%', avg: '11%', yearly: 'NT$372,000', reasons: ['過去 30 天內 CPU 使用率 95% 時間低於 30%', '記憶體使用率低於 40%', '未偵測到擴展事件'] },
+      { id: 'sql', resource: 'Cloud SQL', type: 'Cloud SQL', project: 'Project A', spec: 'db-n1-highmem-8', usage: 'CPU 24%', rec: 'db-n1-highmem-4', saving: 'NT$18,000', currentCost: 'NT$36,000', recCost: 'NT$18,000', p95: '38%', avg: '24%', yearly: 'NT$216,000', reasons: ['CPU P95 低於 40%', '連線數峰值 62 / 上限 400', '可於維護視窗內調整，停機約 3 分鐘'] },
+      { id: 'run', resource: 'Cloud Run', type: 'Cloud Run', project: 'Project B', spec: '2 vCPU / 4GB', usage: '28%', rec: '1 vCPU / 2GB', saving: 'NT$9,500', currentCost: 'NT$19,000', recCost: 'NT$9,500', p95: '41%', avg: '28%', yearly: 'NT$114,000', reasons: ['每個執行個體 CPU P95 41%', '記憶體峰值 1.6GB', '建議於 INC-1034 修復完成後再套用'] }
+    ];
+    const costRows = costs.filter(c => !s.dismissed[c.id]).filter(c => s.proj === 'All Projects' || c.project === s.proj).map(c => ({ ...c, statusLabel: s.applied[c.id] ? '已套用' : '建議', statusTag: s.applied[c.id] ? 'cub-tag-green' : 'cub-tag-blue', open: (e) => { stop(e); S({ costId: c.id }); } }));
+    const costItem = costs.find(c => c.id === s.costId) || costs[1];
+    const appliedCount = Object.keys(s.applied).length;
+    const costTabs = [['opps', '優化機會', costRows.length], ['forecast', '成本預測', 1], ['anomaly', '成本異常', 4]].map(([k, label, count]) => ({ label, count, cls: s.costTab === k ? 'cub-tab-item-active' : '', pick: () => S({ costTab: k }) }));
+    const anomalies = [
+      { sev: '警告', tag: 'cub-tag-orange', title: 'Cloud Run 成本上升 28%', resource: 'payment-service', project: 'Project B', impact: '+NT$14,200', at: '2026/09/08 06:00' },
+      { sev: '警告', tag: 'cub-tag-orange', title: 'Cloud SQL 成本上升 12%', resource: 'orders-db', project: 'Project A', impact: '+NT$4,300', at: '2026/09/07 18:00' },
+      { sev: '資訊', tag: 'cub-tag-blue', title: '偵測到未使用的 Persistent Disk', resource: 'pd-ssd-backup-03 (500GB)', project: 'Project C', impact: '+NT$2,900', at: '2026/09/07 09:00' },
+      { sev: '資訊', tag: 'cub-tag-blue', title: '偵測到未使用的靜態 IP', resource: '35.201.xx.xx', project: 'Project D', impact: '+NT$310', at: '2026/09/06 09:00' }
+    ];
+
+    // --- reports
+    const reports = [
+      { id: 'INC-1034', project: 'Project B', rootCause: '記憶體洩漏', action: '自動修復', approver: 'Alan', result: resolved ? '已修復' : '進行中', tag: resolved ? 'cub-tag-green' : 'cub-tag-blue', recovery: resolved ? '2m 41s' : '—', date: '今天', timeline: [['10:41', '偵測到警示'], ['10:42', 'Diagnostic Agent 開始分析'], ['10:43', '已找到根因'], ['10:44', '已產生修復方案'], [s.approvedAt || '10:45', 'Alan 批准修復方案'], ['10:46', '部署完成'], ['10:47', '服務已復原']], root: '連線池資源未正確釋放，導致記憶體增長與資料庫連線耗盡。', resolution: '已更新連線處理邏輯並重新部署 payment-service。', prevent: ['新增連線池監控', '新增靜態程式碼檢查規則', '建立新的異常偵測門檻'] },
+      { id: 'INC-1033', project: 'Project C', rootCause: 'VM 規格過大', action: '調整 VM 規格', approver: 'Benson', result: '已完成', tag: 'cub-tag-green', recovery: '—', date: '今天', timeline: [['09:40', 'Cost Sentinel 偵測低使用率'], ['09:41', '產生 rightsizing 建議'], ['10:05', 'Benson 批准調整'], ['10:12', 'VM 規格調整完成']], root: 'VM-02 過去 30 天 CPU 平均 11%，規格明顯高於實際需求。', resolution: '由 n2-standard-16 調整為 n2-standard-4，每月節省 NT$31,000。', prevent: ['新增資源使用率月報', '建立規格申請審核流程'] },
+      { id: 'INC-1032', project: 'Project A', rootCause: '資料庫逾時', action: '重試', approver: 'Alan', result: '失敗', tag: 'cub-tag-red', recovery: '15m', date: '昨天', timeline: [['08:41', '偵測到逾時警示'], ['08:43', 'Diagnostic Agent 判定連線池問題'], ['08:45', 'Alan 批准重試策略'], ['08:56', '重試 3 次皆失敗，升級為人工處理'], ['09:10', 'DBA 手動擴充連線池後復原']], root: 'Cloud SQL 連線數達上限 100，重試無法解決根本容量問題。', resolution: '自動重試失敗後升級人工處理；DBA 手動調整連線池上限至 200。', prevent: ['將「提高連線池上限」納入 Mitigation Agent 動作庫', '對連線數設定 80% 預警'] }
+    ];
+    const reportRows = reports.filter(r => s.resFilter === '全部結果' || r.result === s.resFilter).filter(r => s.proj === 'All Projects' || r.project === s.proj).map(r => ({ ...r, open: (e) => { stop(e); S({ reportId: r.id, reportTab: 'timeline' }); } }));
+    const reportRaw = reports.find(r => r.id === s.reportId) || reports[0];
+    const report = { ...reportRaw, timeline: reportRaw.timeline.map(([time, text]) => ({ time, text })) };
+    const reportTabs = [['timeline', '時間線'], ['root', '根因'], ['resolution', '解決方式'], ['prevent', '預防措施']].map(([k, label]) => ({ label, cls: s.reportTab === k ? 'cub-tab-item-active' : '', pick: () => S({ reportTab: k }) }));
+
+    // --- audit
+    const typeTag = { '人員': 'cub-tag-blue', 'AI Agent': 'cub-tag-purple', '系統': 'cub-tag-gray' };
+    const baseAudit = [
+      ['2026/09/08 10:44:02', 'Mitigation Agent', 'AI Agent', 'Project B', '產生修補', 'PaymentController.java', '成功', 'agent://mitigation', '+4 −2，單元測試 12/12'],
+      ['2026/09/08 10:43:41', 'Cost Sentinel', 'AI Agent', 'Project B', '成本影響評估', 'INC-1034', '成功', 'agent://cost-sentinel', '+NT$350 / 月'],
+      ['2026/09/08 10:43:12', 'Diagnostic Agent', 'AI Agent', 'Project B', '根因分析', 'INC-1034', '成功', 'agent://diagnostic', '連線池洩漏，信心度 92%'],
+      ['2026/09/08 10:41:20', 'Telemetry Agent', 'AI Agent', 'Project B', '異常偵測', 'payment-service', '成功', 'agent://telemetry', '錯誤率 18.2%'],
+      ['2026/09/08 10:12:33', '系統', '系統', 'Project C', '調整 VM 規格', 'vm-02', '成功', 'system', 'n2-standard-16 → n2-standard-4'],
+      ['2026/09/08 10:05:10', 'Benson', '人員', 'Project C', '批准成本建議', 'vm-02', '成功', '10.20.8.14', 'Operator'],
+      ['2026/09/07 08:56:40', '系統', '系統', 'Project A', '自動重試', 'order-api', '失敗', 'system', '重試 3/3 失敗，升級人工'],
+      ['2026/09/07 08:45:02', 'Alan', '人員', 'Project A', '批准重試策略', 'INC-1032', '成功', '10.20.8.21', 'Operator']
+    ];
+    const extra = [];
+    if (s.approvedAt) extra.push(['2026/09/08 ' + s.approvedAt + ':00', 'Alan', '人員', 'Project B', '批准修復方案', 'INC-1034', '成功', '10.20.8.21', 'Operator · 已勾選 Production 變更確認']);
+    if (s.execStep >= 5) extra.unshift(['2026/09/08 ' + s.approvedAt + ':08', '系統', '系統', 'Project B', '部署', 'payment-service rev-00047', '成功', 'system', 'Cloud Run 流量 100%']);
+    if (resolved) extra.unshift(['2026/09/08 ' + s.approvedAt + ':51', 'Post-Mortem Agent', 'AI Agent', 'Project B', '產生報告', 'INC-1034', '成功', 'agent://postmortem', '事件已解決，復原 2m 41s']);
+    if (s.rejected) extra.unshift(['2026/09/08 10:52:14', 'Alan', '人員', 'Project B', '拒絕修復方案', 'INC-1034', '成功', '10.20.8.21', '事件升級為人工處理']);
+    Object.keys(s.applied).forEach(k => { const c = costs.find(x => x.id === k); extra.unshift(['2026/09/08 11:0' + (Object.keys(s.applied).indexOf(k) + 1) + ':00', 'Alan', '人員', c.project, '套用成本建議', c.resource, '成功', '10.20.8.21', c.spec + ' → ' + c.rec]); });
+    const auditRows = extra.concat(baseAudit).map(([ts, actor, type, project, action, target, result, source, details]) => ({ ts, actor, type, project, action, target, result, source, details, typeTag: typeTag[type], resultTag: result === '成功' ? 'cub-tag-green' : 'cub-tag-red' }));
+
+    // --- settings
+    const settingsTabs = [['general', '一般'], ['policy', '修復政策'], ['agents', 'Agent 設定'], ['roles', '角色與權限'], ['notify', '通知']].map(([k, label]) => ({ label, cls: s.settingsTab === k ? 'cub-tab-item-active' : '', pick: () => S({ settingsTab: k }) }));
+    const policyOptions = ['關閉', 'UAT Only', 'All Environments'].map(l => ({ label: l, checked: s.policy === l, cls: s.policy === l ? 'cub-radio-checked' : '', pick: () => { S({ policy: l }); this.toast('已更新修復政策', '自動修復範圍：' + l); } }));
+    const guardDefs = [['rollback', '自動回滾', '部署後 60 秒內錯誤率未下降即回滾'], ['approval', 'Production 需人工批准', 'PROD 環境所有變更需 Operator 以上批准'], ['canary', '漸進式流量切換', '10% → 50% → 100%'], ['budget', '預算超支自動通知', '預估超支 > 5% 時通知 Teams']];
+    const guardrails = guardDefs.map(([k, label, desc]) => ({ label, desc, cls: s.guards[k] ? 'cub-checked' : '', toggle: () => S({ guards: { ...s.guards, [k]: !s.guards[k] } }) }));
+    const agentSettings = [{ name: 'Telemetry Agent', duty: 'Metrics、Logging、異常偵測', model: 'gemini-2.5-flash', threshold: '—' }, { name: 'Diagnostic Agent', duty: '根因分析、日誌與程式碼關聯', model: 'gemini-2.5-pro', threshold: '80%' }, { name: 'Mitigation Agent', duty: '修復方案、程式碼變更、單元測試', model: 'gemini-2.5-pro', threshold: '85%' }, { name: 'Cost Sentinel', duty: '閒置／過大資源、預算預測', model: 'gemini-2.5-flash', threshold: '90%' }, { name: 'Post-Mortem Agent', duty: '事件摘要、稽核軌跡、預防措施', model: 'gemini-2.5-flash', threshold: '—' }];
+    const roles = [{ name: 'Viewer', members: 14, perms: ['檢視報表', '檢視事件', '檢視成本'] }, { name: 'Operator', members: 5, perms: ['Viewer 全部權限', '批准修復方案', '執行成本建議'] }, { name: 'Admin', members: 2, perms: ['所有權限', '專案設定', 'Agent 設定', '角色管理'] }];
+    const channels = [
+      { name: 'Microsoft Teams', events: '嚴重事件、待批准、預算超支', status: s.teamsConnected ? '已連接' : '未連接', tag: s.teamsConnected ? 'cub-tag-green' : 'cub-tag-gray', actLabel: s.teamsConnected ? '設定' : '連接', act: () => { S({ teamsConnected: true }); this.toast('Microsoft Teams 已連接', '通知將發送至 #aegisops-alerts'); } },
+      { name: 'Email', events: '每日摘要、Post-Mortem 報告', status: '已連接', tag: 'cub-tag-green', actLabel: '設定', act: () => this.toast('Email 通知', '收件者：devops@cathay.example', 'neutral') },
+      { name: 'Web Dashboard', events: '全部事件', status: '已連接', tag: 'cub-tag-green', actLabel: '設定', act: () => this.toast('Web Dashboard', '瀏覽器推播已啟用', 'neutral') }
+    ];
+
+    // --- activity
+    const activity = [
+      { time: '10:41', agent: 'Telemetry Agent', text: '偵測到 Project B CPU 異常', icon: 'cub-icon-sensor', cls: 'cub-active' },
+      { time: '10:42', agent: 'Diagnostic Agent', text: '分析日誌與原始碼', icon: 'cub-icon-magnifier-chart-bar', cls: 'cub-active' },
+      { time: '10:43', agent: 'Diagnostic Agent', text: '已找到根因：連線池洩漏（92%）', icon: 'cub-icon-brain', cls: 'cub-active' },
+      { time: '10:44', agent: 'Mitigation Agent', text: '已產生修復方案', icon: 'cub-icon-wrench', cls: 'cub-active' },
+      resolved ? { time: s.approvedAt, agent: 'Post-Mortem Agent', text: '事件已解決，報告已產生', icon: 'cub-icon-check-circle-filled', cls: 'cub-active' } : { time: '10:45', agent: '人工批准', text: s.rejected ? 'Alan 已拒絕，升級人工處理' : '等待 Alan 批准', icon: 'cub-icon-user-shield', cls: '' }
+    ];
+
+    return {
+      stop, loading: s.loading,
+      isOverview: s.route === 'overview', isIncidents: s.route === 'incidents', isIncidentDetail: s.route === 'incident', isRemediation: s.route === 'remediation', isCost: s.route === 'cost', isReports: s.route === 'reports', isAudit: s.route === 'audit', isProjects: s.route === 'projects', isSettings: s.route === 'settings',
+      goOverview: nav('overview'), goIncidents: nav('incidents'), goProjects: nav('projects'), goCost: nav('cost'), goReports: nav('reports'), goAudit: nav('audit'), goSettings: nav('settings'), openMainIncident, goRemediation: () => this.go('remediation'),
+      navOverview: s.route === 'overview' ? 'cub-selected' : '', navIncidents: ['incidents', 'incident', 'remediation'].includes(s.route) ? 'cub-selected' : '', navProjects: s.route === 'projects' ? 'cub-selected' : '', navCost: s.route === 'cost' ? 'cub-selected' : '', navReports: s.route === 'reports' ? 'cub-selected' : '', navAudit: s.route === 'audit' ? 'cub-selected' : '', navSettings: s.route === 'settings' ? 'cub-selected' : '',
+      toggleSidebar: () => S({ collapsed: !s.collapsed }), sidebarClass: s.collapsed ? 'cs-collapsed' : '', menuCollapsedClass: s.collapsed ? 'cub-collapsed' : '',
+      envLabel: s.env, envOpen: envS.open, envOpenClass: envS.openCls, toggleEnv: envS.toggle, envOptions: envS.options,
+      projLabel: s.proj, projOpen: projS.open, projOpenClass: projS.openCls, toggleProj: projS.toggle, projOptions: projS.options,
+      timeLabel: s.time, timeOpen: timeS.open, timeOpenClass: timeS.openCls, toggleTime: timeS.toggle, timeOptions: timeS.options,
+      sevLabel: s.sev, sevOpen: sevS.open, sevOpenClass: sevS.openCls, toggleSev: sevS.toggle, sevOptions: sevS.options,
+      resLabel: s.resFilter, resOpen: resS.open, resOpenClass: resS.openCls, toggleRes: resS.toggle, resOptions: resS.options,
+      activeCount, criticalCount, projectHealth, activity, pipeline, pipelineFull, openCostAgent: (e) => { stop(e); S({ agentId: 'cost' }); },
+      incidentTabs, filteredIncidents, noIncidents: filteredIncidents.length === 0, search: s.search, onSearch: (e) => S({ search: e.target.value }),
+      inc, detailTabs, dtOverview: s.detailTab === 'overview', dtLogs: s.detailTab === 'logs', dtCode: s.detailTab === 'code', dtAgents: s.detailTab === 'agents',
+      metricOptions, metricTitle: m.title, metricRange: m.range, metricColor: m.color, metricPoints: m.points, telemetryStats, logs, agentRows,
+      ackLabel: s.acked ? '已接手' : '確認接手', ackDisabled: s.acked ? 'cub-disabled' : '', ackIncident: () => { if (!s.acked) { S({ acked: true }); this.toast('已確認接手', inc.id + ' 指派給 Alan'); } },
+      shareIncident: () => this.toast('連結已複製', 'https://aegisops.example/incidents/' + inc.id, 'neutral'),
+      retryAgent: () => this.toast('重新分析失敗', '服務帳戶仍缺少 logging.viewer 角色', 'error'),
+      execIdle: s.exec === 'idle' && !s.rejected, execRunning: s.exec === 'running', execDone: s.exec === 'done', execSteps, execLog: s.execLog, approvedAt: s.approvedAt, liveError: lv[0], liveCpu: lv[1],
+      showActionBar: s.route === 'remediation' && s.exec === 'idle' && !s.rejected,
+      approvalOpen: s.approvalOpen, openApproval: () => S({ approvalOpen: true, ackBox: false }), closeApproval: () => S({ approvalOpen: false }), ackClass: s.ackBox ? 'cub-checked' : '', toggleAckBox: () => S({ ackBox: !s.ackBox }), approveDisabled: s.ackBox ? '' : 'cub-disabled', approve: () => { if (s.ackBox) this.startExecution(); },
+      rejectOpen: s.rejectOpen, rejectFix: () => S({ rejectOpen: true }), closeReject: () => S({ rejectOpen: false }), confirmReject: () => { S({ rejectOpen: false, rejected: true }); this.toast('已拒絕修復方案', 'INC-1034 已升級為人工處理', 'error'); },
+      diffOpen: s.diffOpen, openDiff: () => S({ diffOpen: true }), closeDiff: () => S({ diffOpen: false }), fullDiff,
+      agentOpen: !!s.agentId, agent, closeAgent: () => S({ agentId: null }),
+      costTabs, ctOpps: s.costTab === 'opps', ctForecast: s.costTab === 'forecast', ctAnomaly: s.costTab === 'anomaly', pickCostOpps: () => S({ costTab: 'opps' }), costRows, anomalies, appliedCount,
+      costOpen: !!s.costId, costItem, closeCost: () => S({ costId: null }), dismissCost: () => { S({ dismissed: { ...s.dismissed, [costItem.id]: true }, costId: null }); this.toast('已忽略建議', costItem.resource + ' 將於 30 天後重新評估', 'neutral'); },
+      costApplyLabel: s.applied[costItem.id] ? '已套用' : '套用建議', costApplyDisabled: s.applied[costItem.id] ? 'cub-disabled' : '', applyCost: () => { if (!s.applied[costItem.id]) { S({ applied: { ...s.applied, [costItem.id]: true }, costId: null }); this.toast('已套用建議', costItem.resource + '：' + costItem.spec + ' → ' + costItem.rec + '，每月節省 ' + costItem.saving); } },
+      reportRows, noReports: reportRows.length === 0, reportOpen: !!s.reportId, report, reportTabs, rtTimeline: s.reportTab === 'timeline', rtRoot: s.reportTab === 'root', rtResolution: s.reportTab === 'resolution', rtPrevent: s.reportTab === 'prevent', closeReport: () => S({ reportId: null }),
+      openPostMortem: () => this.go('reports', { reportId: 'INC-1034', reportTab: 'timeline' }), downloadReport: () => this.toast('報告已產生', report.id + '_postmortem.pdf 開始下載', 'neutral'), exportReports: () => this.toast('匯出中', '依目前篩選條件產出 Excel，約需 30 秒', 'neutral'),
+      auditRows, projectRows, projectOpen: !!s.projectId, proj: { ...(projects.find(p => p.id === s.projectId) || projects[1]), sa: 'aegisops-agent@' + (s.projectId || 'aegis-proj-b-prod') + '.iam.gserviceaccount.com', policyTag: policyTag[(projects.find(p => p.id === s.projectId) || projects[1]).policy] }, closeProject: () => S({ projectId: null }),
+      settingsTabs, stGeneral: s.settingsTab === 'general', stPolicy: s.settingsTab === 'policy', stAgents: s.settingsTab === 'agents', stRoles: s.settingsTab === 'roles', stNotify: s.settingsTab === 'notify', policyOptions, guardrails, agentSettings, roles, channels,
+      toastVisible: !!s.toast, toast: s.toast || {}
+    };
+  }
+}
+</script>
+</body>
+</html>
