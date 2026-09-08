@@ -4,7 +4,9 @@
 
 ## 線上預覽
 
-啟用 GitHub Pages 後可直接在瀏覽器打開（連結請看 repo 頁面右側 About 區塊，或 Settings → Pages）。
+**https://cathayhackathon.github.io/aegisops-mockup/**
+
+（透過 GitHub Pages 直接看，不用 clone。）
 
 ## 本機開啟
 
