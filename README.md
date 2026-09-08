@@ -10,18 +10,9 @@
 
 ## 本機開啟
 
-```bash
-git clone https://github.com/CathayHackathon/aegisops-mockup.git
-cd aegisops-mockup
-# 因為 HTML 引用了本地 CSS/JS，直接雙擊在部分瀏覽器可能受 CORS 限制，
-# 建議用簡單 http server 打開：
-python -m http.server 8000
-# 打開 http://localhost:8000
-```
+`index.html` 是自包含 bundled 檔案（所有 JS/CSS/資源都內嵌），下載後直接雙擊就能在瀏覽器打開。
 
 ## 檔案結構
 
-- `index.html` — 主設計稿（原檔名 `AegisOps.dc.html`）
-- `assets/` — 圖片資源（nodata / success / fix 等 SVG）
-- `support.js` — 互動 script
-- `_ds/` — 設計系統 bundle（字型、色票、元件 CSS，缺了畫面會裂）
+- `index.html` — 主 Prototype（bundled，無外部相依）
+- `.nojekyll` — 告訴 GitHub Pages 跳過 Jekyll 處理
